@@ -1,0 +1,2 @@
+run = "make && ./$(cat .g++out) samples/basic.lang"
+#run = "make && ./$(cat .g++out)"
