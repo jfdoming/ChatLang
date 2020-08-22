@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 
-#include "src/input.hpp"
-#include "src/tokenizer.hpp"
+#include "src/scan/input.hpp"
+#include "src/scan/tokenizer.hpp"
 
 using namespace std;
 
@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 
     string line;
     size_t line_number = 1;
-    std::vector<Token> tokens;
+    vector<Token> tokens;
     while (input.next(line)) {
         int failure_index = tokenize(line, tokens);
         if (failure_index != -1) {

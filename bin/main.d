@@ -1,1 +1,2 @@
-bin/main.o: main.cpp src/input.hpp src/tokenizer.hpp src/token_types.hpp
+bin/main.o: main.cpp src/scan/input.hpp src/scan/tokenizer.hpp \
+ src/scan/token_types.hpp

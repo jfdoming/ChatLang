@@ -52,4 +52,12 @@ clean:
 deepclean: clean
 	@rm -f $(TOPDIR).g++out
 
-include $(DEPENDENCIES)
+pgen: tools/pgen/main.cpp
+	$(info Compiling...)
+	@$(CC) tools/pgen/main.cpp -o pgen
+
+grammar: pgen src/lang.cfg
+	$(info Building automaton...)
+	@./pgen < src/lang.cfg
+
+#include $(DEPENDENCIES)

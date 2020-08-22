@@ -5,6 +5,8 @@
 #include <string>
 
 #define TOKEN_TYPES \
+X(B0F) \
+X(E0F) \
 X(SYMBOL) \
 X(ID) \
 X(NUM) \
