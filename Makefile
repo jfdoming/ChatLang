@@ -1,6 +1,6 @@
 SHELL    := /bin/bash
 #TOPDIR   := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))/
-TOPDIR   := ./
+TOPDIR   := # Set this to an actual value if the makefile is not in the root.
 SRCDIR   := $(TOPDIR)src/
 OBJDIR   := $(TOPDIR)bin/
 OUTDIR   := $(TOPDIR)
@@ -16,9 +16,9 @@ DFILES   := d
 CC       := g++
 CFLAGS   := -std=c++17 -Wall -g -MMD
 
-SOURCES := $(notdir $(wildcard $(SRCDIR)*.$(SFILES)))
-OBJECTS := $(patsubst %$(SFILES), $(OBJDIR)%$(OFILES), $(SOURCES)) $(OBJDIR)main.o
-DEPENDENCIES := $(patsubst %$(SFILES), $(OBJDIR)%$(DFILES), $(SOURCES)) $(OBJDIR)main.d
+SOURCES := $(wildcard $(SRCDIR)**/*.$(SFILES))
+OBJECTS := $(patsubst $(SRCDIR)%$(SFILES), $(OBJDIR)%$(OFILES), $(SOURCES)) $(OBJDIR)main.o
+DEPENDENCIES := $(patsubst $(SRCDIR)%$(SFILES), $(OBJDIR)%$(DFILES), $(SOURCES)) $(OBJDIR)main.d
 
 ALLFILES := $(SOURCES) main.cpp
 
@@ -39,12 +39,13 @@ $(EXE): $(OBJECTS)
 bin/main.o: main.cpp
 	$(info Compiling...)
 	@mkdir -p $(OBJDIR)
-	@$(CC) $(CFLAGS) -c $< -o $@ -I $(TOPDIR)
+	@$(CC) $(CFLAGS) -c $< -o $@ -I ./$(TOPDIR)
 
 $(OBJDIR)%$(OFILES): $(SRCDIR)%$(SFILES)
 	$(info Compiling...)
 	@mkdir -p $(OBJDIR)
-	@$(CC) $(CFLAGS) -c $< -o $@ -I $(TOPDIR)
+	@mkdir -p $(dir $(firstword $@))
+	@$(CC) $(CFLAGS) -c $< -o $@ -I ./$(TOPDIR)
 
 clean:
 	@rm -f $(OBJECTS) $(EXE)
@@ -58,6 +59,7 @@ pgen: tools/pgen/main.cpp
 
 grammar: pgen src/lang.cfg
 	$(info Building automaton...)
-	@./pgen < src/lang.cfg
+	@./pgen --nt-only < src/lang.cfg > src/parse/nt_def.hpp
+	@./pgen < src/lang.cfg > src/parse/parser.cpp
 
 #include $(DEPENDENCIES)

@@ -62,24 +62,16 @@ class Item {
 ostream &operator <<(ostream &out, const Item &item) {
     out << item.lhs << " ->";
     for (size_t i = 0; i < item.rule.size(); ++i) {
-        if (i == item.rhsIndex) {
+        if (i == item.pos) {
             out << " .";
         }
         out << " " << item.rule[i];
     }
-    out << endl;
+    if (item.pos == item.rule.size()) {
+        out << " .";
+    }
     return out;
 }
-
-template <typename T, typename U, typename H = hash<T>>
-struct hash_pair {
-        H hashT;
-        hash<U> hashU;
-    public:
-        size_t operator()(const pair<T, U> &x) const {
-            return 3 * hashT(x.first) + hashU(x.second);
-        }
-};
 
 struct hash_item {
         hash<size_t> hashPos;
@@ -105,132 +97,111 @@ struct hash_set {
 };
 
 struct Action {
-        string str() {
-            if (!initialized) {
-                return "// ERROR: not initialized";
-            }
-            return _str();
-        };
+    virtual string str(bool nonterminal = false) = 0;
+    virtual bool operator !=(const Action &other) = 0;
 
-        void initialize() {
-            _initialize();
-            initialized = true;
-        }
-
-        virtual bool operator !=(const Action &other) = 0;
-
-        virtual ~Action() {}
-    private:
-        bool initialized = false;
-        virtual string _str() = 0;
-        virtual void _initialize() = 0;
+    virtual ~Action() {}
 };
 
-struct ShiftAction : public Action {
-        ShiftAction(const unordered_set<Item, hash_item> &states) : states{states} {}
-
-        bool operator !=(const Action &other) {
-            if(auto* o = dynamic_cast<const ShiftAction *>(&other)) {
-                return o->states == states;
-            }
-            return false;
-        }
-    private:
-        size_t state;
-        unordered_set<Item, hash_item> states;
-
-        virtual string _str() {
-            ostringstream oss;
-            oss << "state = " << state << ";" << endl;
-            //oss << "state.push(new LRNode{cur.})"
-            oss << R"action(state = stoi((*transition)[2]);
-stack.push(new LRNode{cur.getVocab(), cur.getLexeme()});
-stack.push(new LRNode{state});
-// TODO fix
-++count;)action";
-            return oss.str();
-        }
-
-        virtual void _initialize() {}
-};
-
-struct ReduceAction : public Action {
-        ReduceAction(const string &name, size_t ruleIndex) : name{name}, ruleIndex{ruleIndex} {}
-
-        bool operator !=(const Action &other) {
-            if(auto* o = dynamic_cast<const ReduceAction *>(&other)) {
-                return o->ruleIndex == ruleIndex;
-            }
-            return false;
-        }
-    private:
-        string name;
-        size_t ruleIndex;
-
-        virtual string _str() {
-            ostringstream oss;
-            
-            oss << R"action(peeked = true;" << endl;
-            auto &rule = eof ? rules[0] : rules[stoi((*transition)[2])];
-
-            // Build rule string.
-            string ruleString;
-            for (size_t i = 1; i < rule.size(); ++i) {
-                if (i != 1) ruleString += " ";
-                ruleString += rule[i];
-            }
-            LRNode *newParent = new LRNode{rule[0], ruleString};
-
-            for (size_t i = 0; i < rule.size() - 1; ++i) {
-                if (stack.size() < 2) {
-                    cerr << "ERROR at " << count << endl;
-                    break;
-                }
-                delete stack.top(); // Delete state node.
-                stack.pop(); // Pop deleted state.
-                auto *child = stack.top();
-                newParent->addChild(child);
-                stack.pop(); // Pop vocabulary.
-            }
-
-            state = stack.top()->getState();
-            stack.push(newParent);
-
-            if (!stack.top()->isState() && stack.top()->getVocab() == start) {
-                // Success!
-                success = true;
-                break;
-            }
-
-            transition = nullptr;
-            for (auto &t : transitions[state]) {
-                if (t[0] != rule[0]) {
-                    continue;
-                }
-                // We've found our rule.
-                transition = &t;
-            }
-            if (!transition) {
-                cerr << "ERROR at " << count << endl;
-                break;
-            }
-
-            state = stoi((*transition)[2]);
-            stack.push(new LRNode{state});)action" << endl;
-            return oss.str();
-        }
-
-        virtual void _initialize() {}
-};
-
-class Grammar {
-        unordered_map<string, vector<vector<string>>> rules;
+class IAutomatonResult {
+    public:
         string start;
         unordered_set<string> nonterminals;
         unordered_set<string> terminals;
+        unordered_map<unordered_set<Item, hash_item>, size_t, hash_set<Item, hash_item>> stateSetToIndex;
+
+        virtual ~IAutomatonResult() {}
+};
+
+struct ShiftAction : public Action {
+        ShiftAction(IAutomatonResult *grammar, const unordered_set<Item, hash_item> &nextState) : grammar{grammar}, nextState{nextState} {}
+
+        bool operator !=(const Action &other) {
+            if(auto* o = dynamic_cast<const ShiftAction *>(&other)) {
+                return o->nextState != nextState;
+            }
+            return false;
+        }
+
+        virtual string str(bool nonterminal = false) {
+            ostringstream oss;
+            oss << "                            state = " << grammar->stateSetToIndex.at(nextState) << ";" << endl;
+            if (nonterminal) {
+                oss << "                            peeked = true;" << endl;
+                oss << "                            cur = *(stack.top());" << endl;
+                oss << "                            delete stack.top();" << endl;
+                oss << "                            stack.pop();" << endl;
+            } else {
+                oss << "                            stack.push(new LRNode{cur.getTerminal(), cur.getLexeme()});" << endl;
+            }
+            oss << "                            stack.push(new LRNode{state});" << endl;
+            oss << "                            ++count;" << endl;
+            return oss.str();
+        }
+    private:
+        IAutomatonResult *grammar;
+        public:unordered_set<Item, hash_item> nextState;
+        // TODO change to private
+};
+
+struct ReduceAction : public Action {
+        ReduceAction(IAutomatonResult *grammar, const string &name, const vector<string> &rule, size_t ruleIndex) : grammar{grammar}, name{name}, rule{rule}, ruleIndex{ruleIndex} {}
+
+        bool operator !=(const Action &other) {
+            if(auto* o = dynamic_cast<const ReduceAction *>(&other)) {
+                return o->ruleIndex != ruleIndex;
+            }
+            return false;
+        }
+
+        virtual string str(bool) {
+            ostringstream oss;
+            
+            oss << "                            peeked = true;" << endl;
+            oss << "                            newParent = new LRNode{NonterminalType::" << name << "};" << endl;
+
+            if (rule.size()) {
+                oss << "                            for (size_t i = 0; i < " << rule.size() << "; ++i) {" << endl;
+                oss << R"action(                                if (stack.size() < 2) {
+                                    cerr << "ERROR at " << count << endl;
+                                    break;
+                                }
+                                delete stack.top(); // Delete state node.
+                                stack.pop(); // Pop deleted state.
+                                auto *child = stack.top();
+                                newParent->addChild(child);
+                                stack.pop(); // Pop vocabulary.
+                            })action" << endl;
+            }
+
+            oss << R"action(                            state = stack.top()->getState();
+                            stack.push(newParent);
+
+                            if (!stack.top()->isState() && !stack.top()->isTerminal() && stack.top()->getNonterminal() == NonterminalType::)action" << grammar->start << R"action() {
+                                // Success!
+                                success = true;
+                                done = true;
+                            } else {)action" << endl;
+            oss << "                                stack.push(new LRNode{cur});" << endl;
+            oss << "                                cur = {NonterminalType::" << name << "};" << endl;
+            oss << "                            }" << endl;
+
+            return oss.str();
+        }
+    private:
+        IAutomatonResult *grammar;
+        public:string name; // TODO change to private
+        vector<string> rule;
+        size_t ruleIndex;
+};
+
+struct ShiftAction;
+
+class Grammar : public IAutomatonResult {
+        unordered_map<string, vector<vector<string>>> rules;
         unordered_map<string, unordered_set<string>> follow;
         unordered_set<Item, hash_item> initialState;
-        unordered_map<pair<unordered_set<Item, hash_item>, string>, Action *, hash_pair<unordered_set<Item, hash_item>, string, hash_set<Item, hash_item>>> table;
+        vector<unordered_map<string, Action *>> transitions;
 
         bool auxTablesComputed = false;
 
@@ -313,14 +284,18 @@ class Grammar {
                     if (terminals.find(symbol) != terminals.end()) continue;
 
                     size_t rhsIndex = 0;
+                    size_t oldSize = statesToClose.size();
                     for (auto &rule : rules[symbol]) {
                         statesToClose.emplace(rule, symbol, rhsIndex++);
+                    }
+                    if (oldSize != statesToClose.size()) {
                         changed = true;
                     }
                 }
                 // If the set is unchanged for one iteration, return.
                 if (!changed) return statesToClose;
             }
+            return statesToClose;
         }
         
         unordered_set<Item, hash_item> gotoFromSymbol(const unordered_set<Item, hash_item> &itemsInCurrentState, const string &nextSym) {
@@ -338,26 +313,32 @@ class Grammar {
         }
 
         // Return values: -1 => error, 0 => no action, 1 => added
-        int addAction(const unordered_set<Item, hash_item> &stateItems, const string &nextSym, Action *paramAction) {
+        int addAction(unordered_map<unordered_set<Item, hash_item>, unordered_map<string, Action *>, hash_set<Item, hash_item>> &transitionTable, const unordered_set<Item, hash_item> &stateItems, const string &nextSym, Action *paramAction) {
             int retVal = 0;
-            pair<unordered_set<Item, hash_item>, string> pair{stateItems, nextSym};
-            auto *action = table[pair];
+            auto *action = transitionTable[stateItems][nextSym];
             if (action != nullptr && *action != *paramAction) {
                 cerr << "Conflict on symbol " << nextSym << " in state ";
                 printSet(stateItems);
+                cerr << "Perhaps you have a duplicate rule?" << endl;
                 cerr << endl;
                 retVal = -1;
+
+                delete paramAction;
             } else {
                 if (action == nullptr) {
+                    transitionTable[stateItems][nextSym] = paramAction;
                     retVal = 1;
+                } else {
+                    delete paramAction;
                 }
-                table[pair] = paramAction;
             }
 
             return retVal;
         }
 
         bool computeAutomatonTable() {
+            unordered_map<unordered_set<Item, hash_item>, unordered_map<string, Action *>, hash_set<Item, hash_item>> transitionTable;
+
             unordered_set<Item, hash_item> startItems;
             size_t rhsIndex = 0;
             for (auto &rule : rules[start]) {
@@ -370,7 +351,7 @@ class Grammar {
             bool changed;
             do {
                 changed = false;
-                unordered_set<unordered_set<Item, hash_item>, hash_set<Item, hash_item>> newSeenStates;
+                unordered_set<unordered_set<Item, hash_item>, hash_set<Item, hash_item>> newSeenStates{seenStates};
                 for (unordered_set<Item, hash_item> stateItems : seenStates) {
                     for (auto &item : stateItems) {
                         if (!item.hasNext()) continue;
@@ -379,10 +360,16 @@ class Grammar {
 
                         auto oldSize = newSeenStates.size();
                         newSeenStates.emplace(statesFromCurrentItemNextSym);
-                        if (newSeenStates.size() != oldSize){
+                        if (newSeenStates.size() != oldSize) {
                             changed = true;
                         }
-                        if (addAction(stateItems, nextSym, new ShiftAction(statesFromCurrentItemNextSym))) changed = true;
+                        int addResult = addAction(transitionTable, stateItems, nextSym, new ShiftAction(this, statesFromCurrentItemNextSym));
+                        if (addResult == -1) {
+                            return false;
+                        }
+                        if (addResult == 1) {
+                            changed = true;
+                        }
                     }
                 }
                 for (auto &items : newSeenStates) {
@@ -394,20 +381,32 @@ class Grammar {
                 for (auto &item : items) {
                     if (item.hasNext()) continue;
                     for (auto &str : follow[item.name()]) {
-                        addAction(items, str, new ReduceAction(item.name(), item.ruleIndex()));
+                        if (addAction(transitionTable, items, str, new ReduceAction(this, item.name(), rules[item.name()][item.ruleIndex()], item.ruleIndex())) == -1) {
+                            return false;
+                        }
                     }
                 }
             }
+
+            // Eliminate the map from sets to maps since it's unnecessarily complex.
+            size_t stateIndex = 0;
+            for (auto &state : seenStates) {
+                transitions.emplace_back(transitionTable[state]);
+                stateSetToIndex[state] = stateIndex++;
+            }
+
+            return true;
         }
 
         bool computeAuxTables() {
             computeFollowTable();
-            return true;//computeAutomatonTable();
+            return computeAutomatonTable();
         }
 
-        friend istream &operator>>(istream &, Grammar &);
+        friend istream &operator >>(istream &, Grammar &);
+        friend ostream &operator <<(ostream &, Grammar &);
     public:
-        bool validate() {
+        void computeVocabulary() {
             nonterminals.clear();
             terminals.clear();
 
@@ -424,6 +423,9 @@ class Grammar {
                     }
                 }
             }
+        }
+        bool validate() {
+            computeVocabulary();
 
             cerr << "Found the following nonterminal symbols:" << endl;
             printSet(nonterminals);
@@ -433,12 +435,40 @@ class Grammar {
 
             return computeAuxTables();
         }
+
+        void printVocabulary(ostream &out) {
+            out << "// This file was automatically generated; please do not modify it." << endl;
+            out << "\n#define NT_TYPES \\" << endl;
+            bool first = true;
+            for (auto &word : nonterminals) {
+                if (first) {
+                    first = false;
+                } else {
+                    out << " \\\n";
+                }
+                out << "X(" << word << ")";
+            }
+            out << endl;
+        }
+
+        ~Grammar() {
+            for (auto &stateEntry : transitions) {
+                for (auto &transitionEntry : stateEntry) {
+                    delete transitionEntry.second;
+                }
+            }
+        }
 };
 
 istream &operator >>(istream &is, Grammar &grammar) {
     string line;
     bool startSet = false;
     while (getline(is, line)) {
+        if (!line.size() || line[0] == '#') {
+            // Rudimentary comment.
+            continue;
+        }
+
         istringstream iss{line};
         string lhs;
         vector<string> rhs;
@@ -462,110 +492,103 @@ istream &operator >>(istream &is, Grammar &grammar) {
 }
 
 ostream &operator <<(ostream &os, Grammar &grammar) {
+    size_t initialState = grammar.stateSetToIndex.at(grammar.initialState);
+
     cout << R"(// This file was automatically generated; please do not modify it.
 
 #include "./parser.hpp"
 
 #include <stack>
 
-#include "./parse_node.hpp"
+#include "./lr_node.hpp"
+#include "./nt_types.hpp"
 
 using namespace std;
 
-int parse(const std::vector<Token> &tokens, ParseNode *& tree) {
-    size_t state = 0;
-    size_t count = 0;
-    stack<LRNode *> stack;
-    stack.push(new LRNode{0});
-    bool peeked = true;
+int parse(const std::vector<Token> &tokens, ParseNode *& tree) {)" << endl;
+    cout << "    size_t state = " << initialState << ";" << endl;
+    cout << "    size_t count = 0;" << endl;
+    cout << "    stack<LRNode *> stack;" << endl;
+    cout << "    stack.push(new LRNode{" << initialState << "});" << endl;
+    cout << R"(    bool peeked = true;
     bool eofHit = false;
     bool success = false;
-    LRNode cur{"BOF", "BOF"};
-    while (true) {
+    bool done = false;
+    LRNode cur{TokenType::B0F, ""};
+    LRNode *newParent = nullptr;
+    size_t curPos = 0;
+    while (!done) {
         bool eof = false;
         if (!peeked) {
-            if (!(cin >> buf)) {
+            if (curPos >= tokens.size()) {
                 if (eofHit) {
                     eof = true;
                 } else {
-                    cur = {"EOF", "EOF"};
+                    cur = {TokenType::E0F, ""};
                     eofHit = true;
                 }
             } else {
-                string name = buf;
-                cin >> buf;
-                cur = {name, buf};
+                cur = {tokens[curPos].type, tokens[curPos].lexeme};
+                ++curPos;
             }
         }
         peeked = false;
 
-        vector<string> *transition = <transition for cur state and vocab>;
-
         switch (state) {)" << endl;
 
-        //for (auto &transition : grammar.transitions) {
-            // TODO locate right Action
-        //    cout << action.str() << endl;
-        //}
-
-        cout << R"(        }
-        if (!eof && (*transition)[1] == "shift") {
-            state = stoi((*transition)[2]);
-            stack.push(new LRNode{cur.getVocab(), cur.getLexeme()});
-            stack.push(new LRNode{state});
-
-            ++count;
-        } else {
-            peeked = true;
-            auto &rule = eof ? rules[0] : rules[stoi((*transition)[2])];
-
-            // Build rule string.
-            string ruleString;
-            for (size_t i = 1; i < rule.size(); ++i) {
-                if (i != 1) ruleString += " ";
-                ruleString += rule[i];
-            }
-            LRNode *newParent = new LRNode{rule[0], ruleString};
-
-            for (size_t i = 0; i < rule.size() - 1; ++i) {
-                if (stack.size() < 2) {
-                    cerr << "ERROR at " << count << endl;
-                    break;
+        for (size_t state = 0; state < grammar.transitions.size(); ++state) {
+            cout << "            case " << state << ":" << endl;
+            if (grammar.transitions[state].size()) {
+                cout << "                if (cur.isTerminal()) {" << endl;
+                cout << "                    switch (cur.getTerminal()) {" << endl;
+                for (auto &symbolEntry : grammar.transitions[state]) {
+                    if (grammar.terminals.find(symbolEntry.first) == grammar.terminals.end()) {
+                        continue;
+                    }
+                    cout << "                        case TokenType::" << symbolEntry.first << ":" << endl;
+                    cout << symbolEntry.second->str() << endl;
+                    cout << "                            break;" << endl;
                 }
-                delete stack.top(); // Delete state node.
-                stack.pop(); // Pop deleted state.
-                auto *child = stack.top();
-                newParent->addChild(child);
-                stack.pop(); // Pop vocabulary.
-            }
-
-            state = stack.top()->getState();
-            stack.push(newParent);
-
-            if (!stack.top()->isState() && stack.top()->getVocab() == start) {
-                // Success!
-                success = true;
-                break;
-            }
-
-            transition = nullptr;
-            for (auto &t : transitions[state]) {
-                if (t[0] != rule[0]) {
-                    continue;
+                cout << "                        default:" << endl;
+                cout << "                            cerr << \"Misplaced token:\" << state << cur.getTerminal().str() << endl;" << endl;
+                cout << "                            done = true;" << endl;
+                cout << "                    }" << endl;
+                cout << "                } else {" << endl;
+                cout << "                    switch (cur.getNonterminal()) {" << endl;
+                for (auto &symbolEntry : grammar.transitions[state]) {
+                    if (grammar.nonterminals.find(symbolEntry.first) == grammar.nonterminals.end()) {
+                        continue;
+                    }
+                    cout << "                        case NonterminalType::" << symbolEntry.first << ":" << endl;
+                    cout << symbolEntry.second->str(true) << endl;
+                    cout << "                            break;" << endl;
                 }
-                // We've found our rule.
-                transition = &t;
+                cout << "                        default:" << endl;
+                cout << "                            cerr << \"Code 2-\" << state << \": internal error\" << endl;" << endl;
+                cout << "                            done = true;" << endl;
+                cout << "                    }" << endl;
+                cout << "                }" << endl;
+            } else {
+                // Assume we have an accepting state!
+                cout << R"action(                if (cur.isTerminal()) {
+                    if (eof) {
+                        success = true;
+                    }
+                    done = true;
+                })action" << endl;
             }
-            if (!transition) {
-                cerr << "ERROR at " << count << endl;
-                break;
-            }
+            cout << "                break;" << endl;
+        }
 
-            state = stoi((*transition)[2]);
-            stack.push(new LRNode{state});
+        cout << R"(            default:
+                cerr << "Code 0-" << state << ": internal error" << endl;
+                done = true;
         }
     }
 
+    if (!success) {
+        return -1;
+    }
     // Build parse tree from LRNode tree.
     // TODO augment LRNode class with ParseNode nodes for efficiency.
 
@@ -579,11 +602,26 @@ int parse(const std::vector<Token> &tokens, ParseNode *& tree) {
     return os;
 }
 
-int main() {
+int main(int argc, char **argv) {
+    bool printNTEnum = false;
+    string ntFlag = "--nt-only";
+    for (size_t i = 0; i < argc; ++i) {
+        if (argv[i] == ntFlag) {
+            printNTEnum = true;
+        }
+    }
+
     Grammar grammar;
     cin >> grammar;
-    if (!grammar.validate()) {
-        return -1;
+    if (printNTEnum) {
+        grammar.computeVocabulary();
+        grammar.printVocabulary(cout);
+    } else {
+        if (!grammar.validate()) {
+            return -1;
+        }
+        cout << grammar;
+
+        cerr << "Automaton built." << endl;
     }
-    cout << grammar;
 }

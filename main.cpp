@@ -4,6 +4,9 @@
 #include "src/scan/input.hpp"
 #include "src/scan/tokenizer.hpp"
 
+#include "src/parse/parser.hpp"
+#include "src/parse/parse_node.hpp"
+
 using namespace std;
 
 int main(int argc, char **argv) {
@@ -41,10 +44,9 @@ int main(int argc, char **argv) {
                 return -1;
             }
         }
-        tokens.emplace_back(TokenType::NEWLINE, "\\n");
         ++line_number;
     }
-    for (auto token : tokens) {
-        cout << token.type.str() << "(" << token.lexeme << ")" << endl;
-    }
+
+    ParseNode *tree;
+    parse(tokens, tree);
 }
