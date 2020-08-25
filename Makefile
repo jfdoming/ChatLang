@@ -62,4 +62,4 @@ grammar: pgen src/lang.cfg
 	@./pgen --nt-only < src/lang.cfg > src/parse/nt_def.hpp
 	@./pgen < src/lang.cfg > src/parse/parser.cpp
 
-#include $(DEPENDENCIES)
+include $(DEPENDENCIES)
