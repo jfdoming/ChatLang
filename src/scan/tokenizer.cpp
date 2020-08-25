@@ -131,7 +131,7 @@ unordered_map<string, TokenType> ACCEPT_STATES = {
     {"+", TokenType::PLUS},
     {"-", TokenType::MINUS},
     {"(", TokenType::LPAREN},
-    {")", TokenType::LPAREN},
+    {")", TokenType::RPAREN},
     {"{", TokenType::LBRACE},
     {"}", TokenType::RBRACE},
     {"[", TokenType::LBRACK},
@@ -142,6 +142,16 @@ unordered_map<string, TokenType> ACCEPT_STATES = {
     {"whitespace", TokenType::WHITESPACE},
     {"comment", TokenType::COMMENT},
 };
+
+void accept(vector<Token> &tokens, const string &state, const string &lexeme) {
+    // For now, skip all whitespace and comments.
+    if (
+        ACCEPT_STATES[state] != TokenType::WHITESPACE
+        && ACCEPT_STATES[state] != TokenType::COMMENT
+    ) {
+        tokens.emplace_back(ACCEPT_STATES[state], lexeme);
+    }
+}
 
 // The tokenizer makes the assumption that tokens do not cross lines.
 int tokenize(const string &input, vector<Token> &tokens) {
@@ -175,7 +185,8 @@ int tokenize(const string &input, vector<Token> &tokens) {
             }
 
             string lexeme = input.substr(lexeme_start, i - lexeme_start);
-            tokens.emplace_back(ACCEPT_STATES[state], lexeme);
+            accept(tokens, state, lexeme);
+
             lexeme_start = i;
             state = "start";
         } else {
@@ -195,7 +206,7 @@ int tokenize(const string &input, vector<Token> &tokens) {
     }
 
     string lexeme = input.substr(lexeme_start, i - lexeme_start);
-    tokens.emplace_back(ACCEPT_STATES[state], lexeme);
+    accept(tokens, state, lexeme);
 
     return -1;
 }

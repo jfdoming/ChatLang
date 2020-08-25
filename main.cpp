@@ -1,8 +1,11 @@
 #include <iostream>
 #include <vector>
 
-#include "src/input.hpp"
-#include "src/tokenizer.hpp"
+#include "src/scan/input.hpp"
+#include "src/scan/tokenizer.hpp"
+
+#include "src/parse/parser.hpp"
+#include "src/parse/parse_node.hpp"
 
 using namespace std;
 
@@ -26,7 +29,7 @@ int main(int argc, char **argv) {
 
     string line;
     size_t line_number = 1;
-    std::vector<Token> tokens;
+    vector<Token> tokens;
     while (input.next(line)) {
         int failure_index = tokenize(line, tokens);
         if (failure_index != -1) {
@@ -41,10 +44,9 @@ int main(int argc, char **argv) {
                 return -1;
             }
         }
-        tokens.emplace_back(TokenType::NEWLINE, "\\n");
         ++line_number;
     }
-    for (auto token : tokens) {
-        cout << token.type.str() << "(" << token.lexeme << ")" << endl;
-    }
+
+    ParseNode *tree;
+    parse(tokens, tree);
 }

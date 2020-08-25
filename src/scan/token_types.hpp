@@ -5,6 +5,8 @@
 #include <string>
 
 #define TOKEN_TYPES \
+X(B0F) \
+X(E0F) \
 X(SYMBOL) \
 X(ID) \
 X(NUM) \
@@ -37,8 +39,8 @@ class TokenType {
         operator Type() {
             return type;
         }
-        std::string str() {
-            return type_strings[type];
+        std::string str() const {
+            return type_strings.at(type);
         }
 
     private:
