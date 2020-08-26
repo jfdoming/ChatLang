@@ -125,17 +125,11 @@ struct ShiftAction : public Action {
 
         virtual string str(bool nonterminal = false) {
             ostringstream oss;
-            oss << "                            state = " << grammar->stateSetToIndex.at(nextState) << ";" << endl;
             if (nonterminal) {
-                oss << "                            peeked = true;" << endl;
-                oss << "                            cur = *(stack.top());" << endl;
-                oss << "                            delete stack.top();" << endl;
-                oss << "                            stack.pop();" << endl;
+                oss << "                            state.shiftNT(" << grammar->stateSetToIndex.at(nextState) << ");" << endl;
             } else {
-                oss << "                            stack.push(new LRNode{cur.getTerminal(), cur.getLexeme()});" << endl;
+                oss << "                            state.shift(" << grammar->stateSetToIndex.at(nextState) << ");" << endl;
             }
-            oss << "                            stack.push(new LRNode{state});" << endl;
-            oss << "                            ++count;" << endl;
             return oss.str();
         }
     private:
@@ -145,7 +139,7 @@ struct ShiftAction : public Action {
 };
 
 struct ReduceAction : public Action {
-        ReduceAction(IAutomatonResult *grammar, const string &name, const vector<string> &rule, size_t ruleIndex) : grammar{grammar}, name{name}, rule{rule}, ruleIndex{ruleIndex} {}
+        ReduceAction(const string &name, const vector<string> &rule, size_t ruleIndex) : name{name}, rule{rule}, ruleIndex{ruleIndex} {}
 
         bool operator !=(const Action &other) {
             if(auto* o = dynamic_cast<const ReduceAction *>(&other)) {
@@ -156,41 +150,11 @@ struct ReduceAction : public Action {
 
         virtual string str(bool) {
             ostringstream oss;
-            
-            oss << "                            peeked = true;" << endl;
-            oss << "                            newParent = new LRNode{NonterminalType::" << name << "};" << endl;
-
-            if (rule.size()) {
-                oss << "                            for (size_t i = 0; i < " << rule.size() << "; ++i) {" << endl;
-                oss << R"action(                                if (stack.size() < 2) {
-                                    cerr << "ERROR at " << count << endl;
-                                    break;
-                                }
-                                delete stack.top(); // Delete state node.
-                                stack.pop(); // Pop deleted state.
-                                auto *child = stack.top();
-                                newParent->addChild(child);
-                                stack.pop(); // Pop vocabulary.
-                            })action" << endl;
-            }
-
-            oss << R"action(                            state = stack.top()->getState();
-                            stack.push(newParent);
-
-                            if (!stack.top()->isState() && !stack.top()->isTerminal() && stack.top()->getNonterminal() == NonterminalType::)action" << grammar->start << R"action() {
-                                // Success!
-                                success = true;
-                                done = true;
-                            } else {)action" << endl;
-            oss << "                                stack.push(new LRNode{cur});" << endl;
-            oss << "                                cur = {NonterminalType::" << name << "};" << endl;
-            oss << "                            }" << endl;
-
+            oss << "                            state.reduce(" << rule.size() << ", NonterminalType::" << name << ");" << endl;
             return oss.str();
         }
     private:
-        IAutomatonResult *grammar;
-        public:string name; // TODO change to private
+        string name; // TODO change to private
         vector<string> rule;
         size_t ruleIndex;
 };
@@ -381,7 +345,7 @@ class Grammar : public IAutomatonResult {
                 for (auto &item : items) {
                     if (item.hasNext()) continue;
                     for (auto &str : follow[item.name()]) {
-                        if (addAction(transitionTable, items, str, new ReduceAction(this, item.name(), rules[item.name()][item.ruleIndex()], item.ruleIndex())) == -1) {
+                        if (addAction(transitionTable, items, str, new ReduceAction(item.name(), rules[item.name()][item.ruleIndex()], item.ruleIndex())) == -1) {
                             return false;
                         }
                     }
@@ -498,63 +462,53 @@ ostream &operator <<(ostream &os, Grammar &grammar) {
 
 #include "./parser.hpp"
 
-#include <stack>
-
-#include "./lr_node.hpp"
+#include "./parse_state.hpp"
 #include "./nt_types.hpp"
 
 using namespace std;
 
 int parse(const std::vector<Token> &tokens, ParseNode *& tree) {)" << endl;
-    cout << "    size_t state = " << initialState << ";" << endl;
-    cout << "    size_t count = 0;" << endl;
+    cout << "    ParseState state{" << initialState << ", NonterminalType::" << grammar.start << "};" << endl;
     cout << "    stack<LRNode *> stack;" << endl;
     cout << "    stack.push(new LRNode{" << initialState << "});" << endl;
-    cout << R"(    bool peeked = true;
-    bool eofHit = false;
-    bool success = false;
-    bool done = false;
-    LRNode cur{TokenType::B0F, ""};
-    LRNode *newParent = nullptr;
-    size_t curPos = 0;
-    while (!done) {
+    cout << R"(    bool eofHit = false;
+    while (!state.done) {
         bool eof = false;
-        if (!peeked) {
-            if (curPos >= tokens.size()) {
+        if (!state.peeked) {
+            if (state.curPos >= tokens.size()) {
                 if (eofHit) {
                     eof = true;
                 } else {
-                    cur = {TokenType::E0F, ""};
+                    state.cur = {TokenType::E0F, ""};
                     eofHit = true;
                 }
             } else {
-                cur = {tokens[curPos].type, tokens[curPos].lexeme};
-                ++curPos;
+                state.cur = {tokens[state.curPos].type, tokens[state.curPos].lexeme};
+                ++state.curPos;
             }
         }
-        peeked = false;
+        state.peeked = false;
 
-        switch (state) {)" << endl;
+        switch (state.state) {)" << endl;
 
         for (size_t state = 0; state < grammar.transitions.size(); ++state) {
             cout << "            case " << state << ":" << endl;
             if (grammar.transitions[state].size()) {
-                cout << "                if (cur.isTerminal()) {" << endl;
-                cout << "                    switch (cur.getTerminal()) {" << endl;
+                cout << "                if (state.cur.isTerminal()) {" << endl;
+                cout << "                    switch (state.cur.getTerminal()) {" << endl;
                 for (auto &symbolEntry : grammar.transitions[state]) {
                     if (grammar.terminals.find(symbolEntry.first) == grammar.terminals.end()) {
                         continue;
                     }
                     cout << "                        case TokenType::" << symbolEntry.first << ":" << endl;
-                    cout << symbolEntry.second->str() << endl;
+                    cout << symbolEntry.second->str();
                     cout << "                            break;" << endl;
                 }
                 cout << "                        default:" << endl;
-                cout << "                            cerr << \"Misplaced token:\" << state << cur.getTerminal().str() << endl;" << endl;
-                cout << "                            done = true;" << endl;
+                cout << "                            state.fail();" << endl;
                 cout << "                    }" << endl;
                 cout << "                } else {" << endl;
-                cout << "                    switch (cur.getNonterminal()) {" << endl;
+                cout << "                    switch (state.cur.getNonterminal()) {" << endl;
                 for (auto &symbolEntry : grammar.transitions[state]) {
                     if (grammar.nonterminals.find(symbolEntry.first) == grammar.nonterminals.end()) {
                         continue;
@@ -564,29 +518,27 @@ int parse(const std::vector<Token> &tokens, ParseNode *& tree) {)" << endl;
                     cout << "                            break;" << endl;
                 }
                 cout << "                        default:" << endl;
-                cout << "                            cerr << \"Code 2-\" << state << \": internal error\" << endl;" << endl;
-                cout << "                            done = true;" << endl;
+                cout << "                            state.error();" << endl;
                 cout << "                    }" << endl;
                 cout << "                }" << endl;
             } else {
                 // Assume we have an accepting state!
-                cout << R"action(                if (cur.isTerminal()) {
+                cout << R"action(                if (state.cur.isTerminal()) {
                     if (eof) {
-                        success = true;
+                        state.success = true;
                     }
-                    done = true;
+                    state.done = true;
                 })action" << endl;
             }
             cout << "                break;" << endl;
         }
 
         cout << R"(            default:
-                cerr << "Code 0-" << state << ": internal error" << endl;
-                done = true;
+                state.error();
         }
     }
 
-    if (!success) {
+    if (!state.success) {
         return -1;
     }
     // Build parse tree from LRNode tree.
