@@ -20,11 +20,8 @@ unordered_map<string, function<string(char)>> TRANSITIONS = {
         if (c == '`') {
             return "symbol";
         }
-        if (c == '+') {
-            return "plus";
-        }
-        if (c == '-') {
-            return "minus";
+        if (c == '<') {
+            return "lt";
         }
         if (c == '\'') {
             return "single_string";
@@ -106,11 +103,19 @@ unordered_map<string, function<string(char)>> TRANSITIONS = {
     {"comment", [](char c)->string {
         return "comment";
     }},
+    {"lt", [](char c)->string {
+        if (c == '-') {
+            return "eqsignal";
+        }
+        return ERROR_STATE;
+    }}
 };
 
 unordered_map<char, string> SINGLE_CHAR_STATES = {
     {'+', ERROR_STATE},
-    {'-', ERROR_STATE},
+    {'*', ERROR_STATE},
+    {'/', ERROR_STATE},
+    {'%', ERROR_STATE},
     {'(', ERROR_STATE},
     {')', ERROR_STATE},
     {'{', ERROR_STATE},
@@ -130,6 +135,9 @@ unordered_map<string, TokenType> ACCEPT_STATES = {
     {"string_end", TokenType::STRING},
     {"+", TokenType::PLUS},
     {"-", TokenType::MINUS},
+    {"*", TokenType::STAR},
+    {"/", TokenType::SLASH},
+    {"%", TokenType::PERCENT},
     {"(", TokenType::LPAREN},
     {")", TokenType::RPAREN},
     {"{", TokenType::LBRACE},
@@ -139,6 +147,7 @@ unordered_map<string, TokenType> ACCEPT_STATES = {
     {";", TokenType::SEMICOLON},
     {",", TokenType::COMMA},
     {"=", TokenType::EQUALS},
+    {"eqsignal", TokenType::EQSIGNAL},
     {"whitespace", TokenType::WHITESPACE},
     {"comment", TokenType::COMMENT},
 };

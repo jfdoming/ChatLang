@@ -5,7 +5,7 @@
 #include "src/scan/tokenizer.hpp"
 
 #include "src/parse/parser.hpp"
-#include "src/parse/parse_node.hpp"
+#include "src/parse/lr_node.hpp"
 
 using namespace std;
 
@@ -47,6 +47,6 @@ int main(int argc, char **argv) {
         ++line_number;
     }
 
-    ParseNode *tree;
+    LRNode *tree;
     parse(tokens, tree);
 }

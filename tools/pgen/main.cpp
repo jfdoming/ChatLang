@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <vector>
 #include <unordered_set>
@@ -105,9 +104,6 @@ struct Action {
 
 class IAutomatonResult {
     public:
-        string start;
-        unordered_set<string> nonterminals;
-        unordered_set<string> terminals;
         unordered_map<unordered_set<Item, hash_item>, size_t, hash_set<Item, hash_item>> stateSetToIndex;
 
         virtual ~IAutomatonResult() {}
@@ -134,8 +130,7 @@ struct ShiftAction : public Action {
         }
     private:
         IAutomatonResult *grammar;
-        public:unordered_set<Item, hash_item> nextState;
-        // TODO change to private
+        unordered_set<Item, hash_item> nextState;
 };
 
 struct ReduceAction : public Action {
@@ -162,6 +157,9 @@ struct ReduceAction : public Action {
 struct ShiftAction;
 
 class Grammar : public IAutomatonResult {
+        string start;
+        unordered_set<string> nonterminals;
+        unordered_set<string> terminals;
         unordered_map<string, vector<vector<string>>> rules;
         unordered_map<string, unordered_set<string>> follow;
         unordered_set<Item, hash_item> initialState;
@@ -467,10 +465,8 @@ ostream &operator <<(ostream &os, Grammar &grammar) {
 
 using namespace std;
 
-int parse(const std::vector<Token> &tokens, ParseNode *& tree) {)" << endl;
+int parse(const std::vector<Token> &tokens, LRNode *& tree) {)" << endl;
     cout << "    ParseState state{" << initialState << ", NonterminalType::" << grammar.start << "};" << endl;
-    cout << "    stack<LRNode *> stack;" << endl;
-    cout << "    stack.push(new LRNode{" << initialState << "});" << endl;
     cout << R"(    bool eofHit = false;
     while (!state.done) {
         bool eof = false;
@@ -489,12 +485,13 @@ int parse(const std::vector<Token> &tokens, ParseNode *& tree) {)" << endl;
         }
         state.peeked = false;
 
-        switch (state.state) {)" << endl;
+        if (state.cur.isTerminal()) {
+            switch (state.state) {)" << endl;
 
+        // Terminals
         for (size_t state = 0; state < grammar.transitions.size(); ++state) {
-            cout << "            case " << state << ":" << endl;
+            cout << "                case " << state << ":" << endl;
             if (grammar.transitions[state].size()) {
-                cout << "                if (state.cur.isTerminal()) {" << endl;
                 cout << "                    switch (state.cur.getTerminal()) {" << endl;
                 for (auto &symbolEntry : grammar.transitions[state]) {
                     if (grammar.terminals.find(symbolEntry.first) == grammar.terminals.end()) {
@@ -507,20 +504,6 @@ int parse(const std::vector<Token> &tokens, ParseNode *& tree) {)" << endl;
                 cout << "                        default:" << endl;
                 cout << "                            state.fail();" << endl;
                 cout << "                    }" << endl;
-                cout << "                } else {" << endl;
-                cout << "                    switch (state.cur.getNonterminal()) {" << endl;
-                for (auto &symbolEntry : grammar.transitions[state]) {
-                    if (grammar.nonterminals.find(symbolEntry.first) == grammar.nonterminals.end()) {
-                        continue;
-                    }
-                    cout << "                        case NonterminalType::" << symbolEntry.first << ":" << endl;
-                    cout << symbolEntry.second->str(true) << endl;
-                    cout << "                            break;" << endl;
-                }
-                cout << "                        default:" << endl;
-                cout << "                            state.error();" << endl;
-                cout << "                    }" << endl;
-                cout << "                }" << endl;
             } else {
                 // Assume we have an accepting state!
                 cout << R"action(                if (state.cur.isTerminal()) {
@@ -530,26 +513,47 @@ int parse(const std::vector<Token> &tokens, ParseNode *& tree) {)" << endl;
                     state.done = true;
                 })action" << endl;
             }
-            cout << "                break;" << endl;
+            cout << "                    break;" << endl;
         }
 
-        cout << R"(            default:
-                state.error();
+        cout << "            }" << endl;
+        cout << "        } else {" << endl;
+        cout << "            switch (state.state) {" << endl;
+
+        // Nonterminals
+        for (size_t state = 0; state < grammar.transitions.size(); ++state) {
+            cout << "                case " << state << ":" << endl;
+            if (grammar.transitions[state].size()) {
+                cout << "                    switch (state.cur.getNonterminal()) {" << endl;
+                for (auto &symbolEntry : grammar.transitions[state]) {
+                    if (grammar.nonterminals.find(symbolEntry.first) == grammar.nonterminals.end()) {
+                        continue;
+                    }
+                    cout << "                        case NonterminalType::" << symbolEntry.first << ":" << endl;
+                    cout << symbolEntry.second->str(true);
+                    cout << "                            break;" << endl;
+                }
+                cout << "                        default:" << endl;
+                cout << "                            state.error();" << endl;
+                cout << "                    }" << endl;
+            }
+            cout << "                    break;" << endl;
+        }
+
+        cout << R"(                default:
+                    state.error();
+            }
         }
     }
 
     if (!state.success) {
         return -1;
     }
-    // Build parse tree from LRNode tree.
-    // TODO augment LRNode class with ParseNode nodes for efficiency.
+    
+    state.storeResult(tree);
 
     return 0;
 })" << endl;
-
-    //for (auto &transition : grammar.transitions) {
-    //    cout << "something" << endl;
-    //}
 
     return os;
 }

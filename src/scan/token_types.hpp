@@ -13,6 +13,9 @@ X(NUM) \
 X(STRING) \
 X(PLUS) \
 X(MINUS) \
+X(STAR) \
+X(SLASH) \
+X(PERCENT) \
 X(LPAREN) \
 X(RPAREN) \
 X(LBRACE) \
@@ -24,7 +27,8 @@ X(COMMENT) \
 X(NEWLINE) \
 X(SEMICOLON) \
 X(EQUALS) \
-X(COMMA)
+X(COMMA) \
+X(EQSIGNAL)
 
 class TokenType {
     public:

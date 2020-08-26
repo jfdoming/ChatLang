@@ -65,6 +65,9 @@ struct ParseState {
             cerr << "Misplaced token " << cur.getTerminal().str() << " with error code " << state << endl;
             done = true;
         }
+        void storeResult(LRNode *&tree) {
+            tree = nodeStack.top();
+        }
     
     private:
         stack<LRNode *> nodeStack;
