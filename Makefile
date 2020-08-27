@@ -37,12 +37,12 @@ $(EXE): $(OBJECTS)
 	@$(CC) $^ -o $@
 
 bin/main.o: main.cpp
-	$(info Compiling...)
+	$(info Compiling $<...)
 	@mkdir -p $(OBJDIR)
 	@$(CC) $(CFLAGS) -c $< -o $@ -I ./$(TOPDIR)
 
 $(OBJDIR)%$(OFILES): $(SRCDIR)%$(SFILES)
-	$(info Compiling...)
+	$(info Compiling $<...)
 	@mkdir -p $(OBJDIR)
 	@mkdir -p $(dir $(firstword $@))
 	@$(CC) $(CFLAGS) -c $< -o $@ -I ./$(TOPDIR)

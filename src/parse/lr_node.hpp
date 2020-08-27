@@ -11,24 +11,18 @@
 using namespace std;
 
 struct LRNode {
-        LRNode(const NonterminalType::Type &nonterminal) : nonterminal{nonterminal}, holdsState{false}, holdsTerminal{false} {}
-        LRNode(const TokenType &type, string lexeme) : terminal{type}, holdsState{false}, holdsTerminal{true} {}
-        explicit LRNode(size_t state) : state{state}, holdsState{true}, holdsTerminal{false} {}
-        ~LRNode() {
-            for (auto &child : children) {
-                delete child;
-            }
-        }
+        LRNode(const NonterminalType::Type &nonterminal);
+        LRNode(const TokenType &type, string lexeme);
+        explicit LRNode(size_t state);
+        ~LRNode();
 
-        void addChild(LRNode *child) {
-            children.emplace(children.begin(), child);
-        };
-        size_t getState() const { assert(holdsState); return state; }
-        NonterminalType getNonterminal() const { assert(!(holdsTerminal || holdsState)); return nonterminal; }
-        TokenType getTerminal() const { assert(holdsTerminal); return terminal; }
-        string getLexeme() const { assert(!holdsState); return lexeme; }
-        bool isState() const { return holdsState; }
-        bool isTerminal() const { return holdsTerminal; }
+        void addChild(LRNode *child);
+        size_t getState() const;
+        NonterminalType getNonterminal() const;
+        TokenType getTerminal() const;
+        string getLexeme() const;
+        bool isState() const;
+        bool isTerminal() const;
 
         friend ostream &operator<<(ostream &, const LRNode &);
     private:
@@ -41,19 +35,4 @@ struct LRNode {
         vector<LRNode *> children;
 };
 
-ostream &operator<<(ostream &out, const LRNode &el) {
-    if (el.isState()) {
-        out << "LRNode(STATE:" << el.getState();
-    } else if (el.isTerminal()) {
-        out << el.getTerminal().str() << " " << el.getLexeme() << endl;
-        for (auto *child : el.children) {
-            out << *child;
-        }
-    } else {
-        out << el.getNonterminal().str() << " " << el.getLexeme() << endl;
-        for (auto *child : el.children) {
-            out << *child;
-        }
-    }
-    return out;
-}
+ostream &operator<<(ostream &out, const LRNode &el);

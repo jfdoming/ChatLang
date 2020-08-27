@@ -4,8 +4,8 @@
 #include "src/scan/input.hpp"
 #include "src/scan/tokenizer.hpp"
 
-#include "src/parse/parser.hpp"
 #include "src/parse/lr_node.hpp"
+#include "src/parse/parser.hpp"
 
 using namespace std;
 
