@@ -163,7 +163,7 @@ class Grammar : public IAutomatonResult {
         unordered_map<string, vector<vector<string>>> rules;
         unordered_map<string, unordered_set<string>> follow;
         unordered_set<Item, hash_item> initialState;
-        vector<unordered_map<string, Action *>> transitions;
+        vector<unordered_map<string, unordered_set<string>>> transitions;
 
         bool auxTablesComputed = false;
 
@@ -274,7 +274,7 @@ class Grammar : public IAutomatonResult {
             return closure(nextItems);
         }
 
-        // Return values: -1 => error, 0 => no action, 1 => added
+        // Return values: -1 => error, 0 => no action, 1 => added 
         int addAction(unordered_map<unordered_set<Item, hash_item>, unordered_map<string, Action *>, hash_set<Item, hash_item>> &transitionTable, const unordered_set<Item, hash_item> &stateItems, const string &nextSym, Action *paramAction) {
             int retVal = 0;
             auto *action = transitionTable[stateItems][nextSym];
@@ -353,9 +353,28 @@ class Grammar : public IAutomatonResult {
             // Eliminate the map from sets to maps since it's unnecessarily complex.
             size_t stateIndex = 0;
             for (auto &state : seenStates) {
-                transitions.emplace_back(transitionTable[state]);
                 stateSetToIndex[state] = stateIndex++;
             }
+            for (auto &state : seenStates) {
+                unordered_map<string, unordered_set<string>> tempTransition;
+                for (auto &transition: transitionTable[state]) {
+                    if (nonterminals.find(transition.first) != nonterminals.end()) {
+                        tempTransition[transition.second->str(true)].insert(transition.first);
+                    }
+                    if (terminals.find(transition.first) != terminals.end()) {
+                        tempTransition[transition.second->str()].insert(transition.first);
+                    }
+                }
+                transitions.emplace_back(tempTransition);
+            }
+
+            /*for (auto &state : transitions) {
+                for (auto &item: state) {
+                    cout << item.first << " with cases ";
+                    for (auto &s: item.second) cout << s << " ";
+                }
+                cout << endl;
+            }*/
 
             return true;
         }
@@ -416,7 +435,7 @@ class Grammar : public IAutomatonResult {
         ~Grammar() {
             for (auto &stateEntry : transitions) {
                 for (auto &transitionEntry : stateEntry) {
-                    delete transitionEntry.second;
+                    //delete transitionEntry.first;
                 }
             }
         }
@@ -494,12 +513,17 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {)" << endl;
             if (grammar.transitions[state].size()) {
                 cout << "                    switch (state.cur.getTerminal()) {" << endl;
                 for (auto &symbolEntry : grammar.transitions[state]) {
-                    if (grammar.terminals.find(symbolEntry.first) == grammar.terminals.end()) {
-                        continue;
+                    cout << "                        ";
+                    cout.flush();
+                    for (auto &s: symbolEntry.second) {
+                        if (grammar.terminals.find(s) != grammar.terminals.end()) {
+                            cout.flush();
+                            cout << "case TokenType::" << s << ": ";
+                            cout.flush();
+                        }
+                        cout.flush();
                     }
-                    cout << "                        case TokenType::" << symbolEntry.first << ":" << endl;
-                    cout << symbolEntry.second->str();
-                    cout << "                            break;" << endl;
+                    cout << endl << symbolEntry.first << "                            break;" << endl;
                 }
                 cout << "                        default:" << endl;
                 cout << "                            state.fail();" << endl;
@@ -519,27 +543,33 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {)" << endl;
         cout << "            }" << endl;
         cout << "        } else {" << endl;
         cout << "            switch (state.state) {" << endl;
-
+        
         // Nonterminals
         for (size_t state = 0; state < grammar.transitions.size(); ++state) {
             cout << "                case " << state << ":" << endl;
             if (grammar.transitions[state].size()) {
                 cout << "                    switch (state.cur.getNonterminal()) {" << endl;
                 for (auto &symbolEntry : grammar.transitions[state]) {
-                    if (grammar.nonterminals.find(symbolEntry.first) == grammar.nonterminals.end()) {
-                        continue;
+                    cout.flush();
+                    cout << "                        ";
+                    cout.flush();
+                    for (auto &t: symbolEntry.second) {
+                        if (grammar.nonterminals.find(t) != grammar.nonterminals.end()) {
+                            cout.flush();
+                            cout << "case NonterminalType::" << t << ": " << flush;
+                            cout.flush();
+                        }
+                        cout.flush();
                     }
-                    cout << "                        case NonterminalType::" << symbolEntry.first << ":" << endl;
-                    cout << symbolEntry.second->str(true);
-                    cout << "                            break;" << endl;
+                    cout << endl << symbolEntry.first << "                            break;" << endl;
                 }
                 cout << "                        default:" << endl;
-                cout << "                            state.error();" << endl;
+                cout << "                            state.fail();" << endl;
                 cout << "                    }" << endl;
             }
             cout << "                    break;" << endl;
         }
-
+        
         cout << R"(                default:
                     state.error();
             }
