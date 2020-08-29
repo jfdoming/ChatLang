@@ -27,7 +27,7 @@ a = {
 
 # If you don't want this behaviour, do this:
 b = [] {
-    42
+    ((42 + 13 ** 9) % 25) / 27
 } # b is now a function
 
 print(b()) # Prints 42
