@@ -22,8 +22,14 @@ int interpret(ASTNode *ast) {
     if (result) {
         if (*result) {
             cout << result->str() << endl;
+            if (!result->isAutoDelete()) {
+                delete result;
+            }
         } else {
             cerr << "Returned an error" << endl;
+            if (!result->isAutoDelete()) {
+                delete result;
+            }
             return -1;
         }
     }

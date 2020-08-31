@@ -23,6 +23,7 @@ ASTNode *convertToAST(LRNode *cur);
 // 4. Fix unary - so that it has lower precedence (basic program should output 1).
 // 5. Add variable support in expressions.
 // 6. Add boolean support.
+// 7. Fix Valgrind errors in sample.lang.
 
 ASTNode *convertExpratomToAST(LRNode *cur) {
     auto &&children = cur->getChildren();
@@ -49,7 +50,7 @@ ASTNode *convertToAST(LRNode *cur) {
             case NonterminalType::expr:
             case NonterminalType::exprcat1:
             case NonterminalType::exprcat2:
-                if (cur->getChildren().size() > 1) {
+                if (cur->getChildren().size() > 2) {
                     temp = new BinaryOperatorNode;
                 } else {
                     temp = new ASTNode{cur->getNonterminal()};

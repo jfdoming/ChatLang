@@ -94,6 +94,8 @@ int Environment::set(const string &name, Value *value) {
     if (entry != currentFrame.end()) {
         delete entry->second;
     }
+
+    value->markAutoDelete();
     currentFrame[name] = value;
     return 0;
 }
@@ -115,6 +117,7 @@ int Environment::setEffect(const string &name, Value *value) {
         return 0;
     }
 
+    value->markAutoDelete();
     effectFrames[name].emplace(currentFrameID, value);
     return 0;
 }

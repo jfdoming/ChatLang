@@ -35,6 +35,16 @@ struct BinaryOperatorNode : public ASTNode {
             case TokenType::PERCENT:
                 result = *leftValue % *rightValue;
                 break;
+            case TokenType::EQUALS:
+                env.set(children[0]->getLexeme(), rightValue);
+                // Need to keep previous value around, so short circuit.
+                delete leftValue;
+                return rightValue;
+            case TokenType::EQSIGNAL:
+                env.setEffect(children[0]->getLexeme(), rightValue);
+                // Need to keep previous value around, so short circuit.
+                delete leftValue;
+                return rightValue;
             default:
                 cerr << "Uh-oh! An internal error occurred while interpreting your program. This is probably a bug..." << endl;
                 delete leftValue;

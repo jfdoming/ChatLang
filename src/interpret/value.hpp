@@ -18,6 +18,7 @@ class Value {
         ASTNode *fn;
         std::vector<std::string> fnParams;
         ValueType type;
+        bool autoDelete = false;
     public:
         Value() : type{ValueType::ERROR} {}
         Value(double num) : num{num}, type{ValueType::NUMBER} {}
@@ -26,6 +27,14 @@ class Value {
 
         ValueType getType() {
             return type;
+        }
+
+        void markAutoDelete() {
+            autoDelete = true;
+        }
+
+        bool isAutoDelete() const {
+            return autoDelete;
         }
 
         operator bool() const {
