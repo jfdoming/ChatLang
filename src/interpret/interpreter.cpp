@@ -19,10 +19,13 @@ int interpret(ASTNode *ast) {
     
 
     Value *result = ast->interpret(env);
-    if (result && *result) {
-        cout << result->str() << endl;
-    } else {
-        cerr << "Returned an error" << endl;
+    if (result) {
+        if (*result) {
+            cout << result->str() << endl;
+        } else {
+            cerr << "Returned an error" << endl;
+            return -1;
+        }
     }
 
     return 0;

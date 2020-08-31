@@ -2,9 +2,9 @@
     print("\"Hello, world!\"");
 
     # alskjd p8&#)(*@&$:FUI:XILVJ)
-    true {
+    (true) ({
         print <- {}
-    }
+    })
 }
 
 

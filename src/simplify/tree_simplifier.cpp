@@ -16,17 +16,25 @@ using namespace std;
 
 ASTNode *convertToAST(LRNode *cur);
 
+// TODO list:
+// 1. Add tuple support.
+// 2. Implement function parameters.
+// 3. Implement the print function.
+// 4. Fix unary - so that it has lower precedence (basic program should output 1).
+// 5. Add variable support in expressions.
+// 6. Add boolean support.
+
 ASTNode *convertExpratomToAST(LRNode *cur) {
     auto &&children = cur->getChildren();
     if (children[0]->isTerminal()) {
-        if (children[0]->getTerminal() == TokenType::NUM) {
-            return new NumberNode{cur->getLexeme()};
+        if (children[0]->getTerminal().type == TokenType::NUM) {
+            return new NumberNode{children[0]->getTerminal().lexeme};
         }
-        if (children[0]->getTerminal() == TokenType::MINUS) {
-            return new NumberNode{"-" + cur->getLexeme()};
+        if (children[0]->getTerminal().type == TokenType::MINUS) {
+            return new NumberNode{"-" + children[1]->getTerminal().lexeme};
         }
     }
-    return new ASTNode{cur->getTerminal(), cur->getLexeme()};
+    return new ASTNode{cur->getNonterminal()};
 }
 
 ASTNode *convertToAST(LRNode *cur) {
@@ -52,7 +60,7 @@ ASTNode *convertToAST(LRNode *cur) {
                 if (
                     cur->getChildren().size() > 1
                     && cur->getChildren()[0]->isTerminal()
-                    && cur->getChildren()[0]->getTerminal() == TokenType::COMMA
+                    && cur->getChildren()[0]->getTerminal().type == TokenType::COMMA
                 ) {
                     auto &&children = cur->getChildren();
                     vector<ASTNode *> tupleNodes;
@@ -77,7 +85,7 @@ ASTNode *convertToAST(LRNode *cur) {
         return temp;
     }
     // Terminal TokenType
-    temp = new ASTNode{cur->getTerminal(), cur->getLexeme()};
+    temp = new ASTNode{cur->getTerminal().type, cur->getTerminal().lexeme};
     for (auto &node: cur->getChildren()) {
         temp->addChild(convertToAST(node));
     }

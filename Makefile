@@ -57,9 +57,13 @@ pgen: tools/pgen/main.cpp
 	$(info Compiling...)
 	@$(CC) tools/pgen/main.cpp -o pgen
 
-grammar: pgen src/lang.cfg
+src/parse/parser.cpp: pgen src/lang.cfg
 	$(info Building automaton...)
-	@./pgen --nt-only < src/lang.cfg > src/parse/nt_def.hpp
+	@./pgen --nt-only < src/lang.cfg > src/parse/.nt_def.hpp
+	@if ! diff src/parse/.nt_def.hpp src/parse/nt_def.hpp > /dev/null; then cp src/parse/.nt_def.hpp src/parse/nt_def.hpp; fi
+	@rm src/parse/.nt_def.hpp
 	@./pgen < src/lang.cfg > src/parse/parser.cpp
+
+grammar: src/parse/parser.cpp
 
 include $(DEPENDENCIES)

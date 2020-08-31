@@ -476,18 +476,18 @@ ostream &operator <<(ostream &os, Grammar &grammar) {
 
 using namespace std;
 
-int parse(const std::vector<Token> &tokens, LRNode *& tree) {)" << endl;
-    cout << "    ParseState state{" << initialState << ", NonterminalType::" << grammar.start << "};" << endl;
+int parse(const std::vector<Token> &tokens, std::vector<std::string> *lines, LRNode *& tree) {)" << endl;
+    cout << "    ParseState state{" << initialState << ", NonterminalType::" << grammar.start << ", lines};" << endl;
     cout << R"(    while (!state.done) {
         bool eof = false;
         if (!state.peeked) {
             if (state.curPos >= tokens.size()) {
                 if (!eof) {
-                    state.cur = {TokenType::E0F, ""};
+                    state.cur = Token{TokenType::E0F, "", 0, 0};
                     eof = true;
                 }
             } else {
-                state.cur = {tokens[state.curPos].type, tokens[state.curPos].lexeme};
+                state.cur = tokens[state.curPos];
                 ++state.curPos;
             }
         }
@@ -500,7 +500,7 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {)" << endl;
         for (size_t state = 0; state < grammar.transitions.size(); ++state) {
             cout << "                case " << state << ":" << endl;
             if (grammar.transitions[state].size()) {
-                cout << "                    switch (state.cur.getTerminal()) {" << endl;
+                cout << "                    switch (state.cur.getTerminal().type) {" << endl;
                 for (auto &symbolEntry : grammar.transitions[state]) {
                     bool writtenCase = false;
                     for (auto &s: symbolEntry.second) {

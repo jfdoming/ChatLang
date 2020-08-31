@@ -12,7 +12,7 @@ using namespace std;
 
 LRNode::LRNode(const NonterminalType::Type &nonterminal) : nonterminal{nonterminal}, holdsState{false}, holdsTerminal{false} {}
 
-LRNode::LRNode(const TokenType &type, string lexeme) : terminal{type}, lexeme{lexeme}, holdsState{false}, holdsTerminal{true} {}
+LRNode::LRNode(const Token &terminal) : terminal{terminal}, holdsState{false}, holdsTerminal{true} {}
 
 LRNode::LRNode(size_t state) : state{state}, holdsState{true}, holdsTerminal{false} {}
 
@@ -30,9 +30,7 @@ size_t LRNode::getState() const { assert(holdsState); return state; }
 
 NonterminalType LRNode::getNonterminal() const { assert(!(holdsTerminal || holdsState)); return nonterminal; }
 
-TokenType LRNode::getTerminal() const { assert(holdsTerminal); return terminal; }
-
-string LRNode::getLexeme() const { assert(!holdsState); return lexeme; }
+Token LRNode::getTerminal() const { assert(holdsTerminal); return terminal; }
 
 bool LRNode::isState() const { return holdsState; }
 
@@ -46,12 +44,12 @@ ostream &operator<<(ostream &out, const LRNode &el) {
     if (el.isState()) {
         out << "LRNode(STATE:" << el.getState() << ")";
     } else if (el.isTerminal()) {
-        out << el.getTerminal().str() << " " << el.getLexeme() << endl;
+        out << el.terminal.type.str() << " " << el.terminal.lexeme << endl;
         for (auto *child : el.children) {
             out << *child;
         }
     } else {
-        out << el.getNonterminal().str() << " " << el.getLexeme() << endl;
+        out << el.getNonterminal().str() << endl;
         for (auto *child : el.children) {
             out << *child;
         }

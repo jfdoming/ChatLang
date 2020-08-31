@@ -21,6 +21,7 @@ struct FunctionNode : public ASTNode {
             return new Value{procChild, {}};
         }
 
+        cerr << children.size() << endl;
         cerr << "Uh-oh! An internal error occurred while interpreting your program. This is probably a bug..." << endl;
         return new Value;
     }

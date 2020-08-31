@@ -33,31 +33,30 @@ int main(int argc, char **argv) {
     bool is_file = argc == 2;
 
     string line;
-    size_t line_number = 1;
+    size_t lineNumber = 1;
     vector<Token> tokens;
+    vector<string> lines;
     while (input.next(line)) {
-        int failure_index = tokenize(line, tokens);
+        lines.emplace_back(line);
+        int failure_index = tokenize(line, lineNumber - 1, tokens);
         if (failure_index != -1) {
             string source = "<stdin>";
             if (is_file) {
                 source = argv[1];
             }
-            cerr << source << ":" << line_number << ":" << failure_index + 1 << ": unexpected character" << endl;
+            cerr << source << ":" << lineNumber << ":" << failure_index + 1 << ": unexpected character" << endl;
             cerr << line << endl;
             cerr << string(failure_index, ' ') << "^" << endl;
             if (is_file) {
                 return -1;
             }
         }
-        ++line_number;
-    }
-
-    for (auto &tok : tokens) {
-        cerr << tok.type.str() << endl;
+        tokens.emplace_back(TokenType::NEWLINE, "\n", lineNumber - 1, line.size());
+        ++lineNumber;
     }
 
     LRNode *tree;
-    int result = parse(tokens, tree);
+    int result = parse(tokens, &lines, tree);
     if (result) {
         return result;
     }
@@ -67,12 +66,6 @@ int main(int argc, char **argv) {
     delete tree;
 
     result = interpret(ast);
-    if (result) {
-        delete ast;
-        return result;
-    }
-    
     delete ast;
-
-    return 0;
+    return result;
 }
