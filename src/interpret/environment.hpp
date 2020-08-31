@@ -14,7 +14,8 @@ class Environment {
         Environment(ASTNode *root);
         ~Environment();
 
-        int invoke(const std::string &name, Value *&value);
+        int invoke(const std::string &name, Value *params, Value *&value);
+        int invoke(Value *fn, Value *params, Value *&value);
         int get(const std::string &name, Value *&value) const;
         int set(const std::string &name, Value *value);
         int setEffect(const std::string &name, Value *value);

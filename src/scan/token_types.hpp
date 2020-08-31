@@ -14,6 +14,7 @@ X(STRING) \
 X(PLUS) \
 X(MINUS) \
 X(STAR) \
+X(STARSTAR) \
 X(SLASH) \
 X(PERCENT) \
 X(LPAREN) \

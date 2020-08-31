@@ -20,6 +20,9 @@ unordered_map<string, function<string(char)>> TRANSITIONS = {
         if (c == '`') {
             return "symbol";
         }
+        if (c == '*') {
+            return "star1";
+        }
         if (c == '<') {
             return "lt";
         }
@@ -108,13 +111,18 @@ unordered_map<string, function<string(char)>> TRANSITIONS = {
             return "eqsignal";
         }
         return ERROR_STATE;
+    }},
+    {"star1", [](char c)->string {
+        if (c == '*') {
+            return "star2";
+        }
+        return ERROR_STATE;
     }}
 };
 
 unordered_map<char, string> SINGLE_CHAR_STATES = {
     {'+', ERROR_STATE},
     {'-', ERROR_STATE},
-    {'*', ERROR_STATE},
     {'/', ERROR_STATE},
     {'%', ERROR_STATE},
     {'(', ERROR_STATE},
@@ -136,7 +144,8 @@ unordered_map<string, TokenType> ACCEPT_STATES = {
     {"string_end", TokenType::STRING},
     {"+", TokenType::PLUS},
     {"-", TokenType::MINUS},
-    {"*", TokenType::STAR},
+    {"star1", TokenType::STAR},
+    {"star2", TokenType::STARSTAR},
     {"/", TokenType::SLASH},
     {"%", TokenType::PERCENT},
     {"(", TokenType::LPAREN},

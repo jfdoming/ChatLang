@@ -8,7 +8,7 @@
 using namespace std;
 
 int parse(const std::vector<Token> &tokens, LRNode *& tree) {
-    ParseState state{36, NonterminalType::start};
+    ParseState state{47, NonterminalType::start};
     while (!state.done) {
         bool eof = false;
         if (!state.peeked) {
@@ -29,7 +29,7 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                 case 0:
                     switch (state.cur.getTerminal()) {
                         case TokenType::RBRACE:
-                            state.shift(45);
+                            state.shift(9);
                             break;
                         default:
                             state.fail();
@@ -37,23 +37,33 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 1:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::SEMICOLON:
-                        case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::LBRACK:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::RPAREN:
-                        case TokenType::STAR:
-                        case TokenType::MINUS:
-                        case TokenType::PERCENT:
                         case TokenType::LPAREN:
-                        case TokenType::COMMA:
-                        case TokenType::SLASH:
+                            state.shift(62);
+                            break;
+                        case TokenType::ID:
+                            state.shift(54);
+                            break;
+                        case TokenType::MINUS:
+                            state.shift(41);
+                            break;
+                        case TokenType::RBRACE:
+                        case TokenType::E0F:
+                            state.reduce(0, NonterminalType::proc);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
+                            break;
+                        case TokenType::SEMICOLON:
+                            state.shift(33);
+                            break;
                         case TokenType::LBRACE:
-                            state.reduce(4, NonterminalType::fncall);
+                            state.shift(38);
+                            break;
+                        case TokenType::LBRACK:
+                            state.shift(35);
                             break;
                         default:
                             state.fail();
@@ -61,8 +71,24 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 2:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::RBRACK:
-                            state.reduce(3, NonterminalType::decllist);
+                        case TokenType::STARSTAR:
+                        case TokenType::PLUS:
+                        case TokenType::STAR:
+                        case TokenType::LPAREN:
+                        case TokenType::LBRACE:
+                        case TokenType::SLASH:
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::COMMA:
+                        case TokenType::E0F:
+                        case TokenType::ID:
+                        case TokenType::RBRACE:
+                        case TokenType::NUM:
+                        case TokenType::LBRACK:
+                        case TokenType::SEMICOLON:
+                        case TokenType::STRING:
+                        case TokenType::RPAREN:
+                            state.reduce(3, NonterminalType::fn);
                             break;
                         default:
                             state.fail();
@@ -70,8 +96,24 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 3:
                     switch (state.cur.getTerminal()) {
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::STARSTAR:
+                        case TokenType::SLASH:
+                        case TokenType::LBRACE:
+                        case TokenType::LPAREN:
+                        case TokenType::STAR:
+                        case TokenType::PLUS:
+                        case TokenType::STRING:
+                        case TokenType::RPAREN:
+                        case TokenType::SEMICOLON:
+                        case TokenType::COMMA:
+                        case TokenType::E0F:
+                        case TokenType::ID:
+                        case TokenType::NUM:
                         case TokenType::RBRACE:
-                            state.shift(26);
+                        case TokenType::LBRACK:
+                            state.reduce(3, NonterminalType::expratom);
                             break;
                         default:
                             state.fail();
@@ -79,14 +121,11 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 4:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::RPAREN:
-                            state.shift(1);
+                        case TokenType::EQUALS:
+                            state.shift(64);
                             break;
-                        case TokenType::MINUS:
-                            state.shift(61);
-                            break;
-                        case TokenType::PLUS:
-                            state.shift(66);
+                        case TokenType::EQSIGNAL:
+                            state.shift(63);
                             break;
                         default:
                             state.fail();
@@ -94,30 +133,26 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 5:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::LBRACK:
-                            state.shift(33);
-                            break;
-                        case TokenType::ID:
-                            state.shift(53);
-                            break;
-                        case TokenType::RBRACE:
-                        case TokenType::E0F:
-                            state.reduce(0, NonterminalType::proc);
-                            break;
-                        case TokenType::SEMICOLON:
-                            state.shift(49);
-                            break;
-                        case TokenType::LBRACE:
-                            state.shift(51);
-                            break;
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
                         case TokenType::LPAREN:
-                            state.shift(28);
+                            state.shift(8);
                             break;
+                        case TokenType::LBRACK:
+                        case TokenType::NUM:
+                        case TokenType::ID:
+                        case TokenType::E0F:
+                        case TokenType::SEMICOLON:
+                        case TokenType::RPAREN:
                         case TokenType::STRING:
-                            state.shift(27);
+                        case TokenType::RBRACE:
+                        case TokenType::PLUS:
+                        case TokenType::STARSTAR:
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::COMMA:
+                        case TokenType::LBRACE:
+                        case TokenType::SLASH:
+                        case TokenType::STAR:
+                            state.reduce(1, NonterminalType::expratom);
                             break;
                         default:
                             state.fail();
@@ -125,23 +160,28 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 6:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::SEMICOLON:
-                        case TokenType::ID:
-                        case TokenType::NUM:
+                        case TokenType::SLASH:
+                            state.shift(60);
+                            break;
                         case TokenType::LBRACK:
-                        case TokenType::E0F:
+                        case TokenType::LBRACE:
+                        case TokenType::LPAREN:
+                        case TokenType::MINUS:
                         case TokenType::STRING:
+                        case TokenType::SEMICOLON:
+                        case TokenType::E0F:
                         case TokenType::RBRACE:
                         case TokenType::PLUS:
-                        case TokenType::STAR:
                         case TokenType::RPAREN:
+                        case TokenType::NUM:
+                        case TokenType::ID:
+                            state.reduce(3, NonterminalType::expr);
+                            break;
+                        case TokenType::STAR:
+                            state.shift(58);
+                            break;
                         case TokenType::PERCENT:
-                        case TokenType::MINUS:
-                        case TokenType::SLASH:
-                        case TokenType::LPAREN:
-                        case TokenType::LBRACE:
-                        case TokenType::COMMA:
-                            state.reduce(1, NonterminalType::fn);
+                            state.shift(22);
                             break;
                         default:
                             state.fail();
@@ -150,23 +190,23 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                 case 7:
                     switch (state.cur.getTerminal()) {
                         case TokenType::STAR:
-                            state.shift(64);
-                            break;
-                        case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::LBRACK:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
-                        case TokenType::SEMICOLON:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
                         case TokenType::MINUS:
                         case TokenType::PERCENT:
-                        case TokenType::SLASH:
                         case TokenType::LPAREN:
                         case TokenType::LBRACE:
+                        case TokenType::SLASH:
+                        case TokenType::PLUS:
+                        case TokenType::STARSTAR:
+                        case TokenType::COMMA:
+                        case TokenType::E0F:
+                        case TokenType::ID:
+                        case TokenType::RBRACE:
+                        case TokenType::NUM:
+                        case TokenType::LBRACK:
+                        case TokenType::SEMICOLON:
+                        case TokenType::STRING:
                         case TokenType::RPAREN:
-                            state.reduce(3, NonterminalType::exprcat1);
+                            state.reduce(3, NonterminalType::exprcat3);
                             break;
                         default:
                             state.fail();
@@ -174,11 +214,29 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 8:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::EQUALS:
-                            state.shift(37);
+                        case TokenType::MINUS:
+                            state.shift(41);
                             break;
-                        case TokenType::EQSIGNAL:
-                            state.shift(65);
+                        case TokenType::NUM:
+                            state.shift(29);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::LPAREN:
+                            state.shift(62);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
+                            break;
+                        case TokenType::LBRACK:
+                            state.shift(35);
+                            break;
+                        case TokenType::RPAREN:
+                            state.shift(11);
+                            break;
+                        case TokenType::ID:
+                            state.shift(76);
                             break;
                         default:
                             state.fail();
@@ -186,23 +244,24 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 9:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::SEMICOLON:
-                        case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
-                        case TokenType::LBRACK:
-                        case TokenType::RPAREN:
-                        case TokenType::LBRACE:
-                        case TokenType::LPAREN:
-                        case TokenType::SLASH:
-                        case TokenType::COMMA:
-                        case TokenType::RBRACE:
+                        case TokenType::STARSTAR:
                         case TokenType::PLUS:
                         case TokenType::STAR:
+                        case TokenType::LPAREN:
+                        case TokenType::LBRACE:
+                        case TokenType::SLASH:
                         case TokenType::MINUS:
                         case TokenType::PERCENT:
-                            state.reduce(3, NonterminalType::expratom);
+                        case TokenType::COMMA:
+                        case TokenType::E0F:
+                        case TokenType::ID:
+                        case TokenType::RBRACE:
+                        case TokenType::NUM:
+                        case TokenType::LBRACK:
+                        case TokenType::SEMICOLON:
+                        case TokenType::STRING:
+                        case TokenType::RPAREN:
+                            state.reduce(5, NonterminalType::fn);
                             break;
                         default:
                             state.fail();
@@ -210,23 +269,14 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 10:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::PLUS:
-                            state.shift(66);
-                            break;
-                        case TokenType::LBRACE:
-                        case TokenType::LPAREN:
-                        case TokenType::STRING:
-                        case TokenType::LBRACK:
-                        case TokenType::SEMICOLON:
-                        case TokenType::E0F:
                         case TokenType::RPAREN:
-                        case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::RBRACE:
-                            state.reduce(3, NonterminalType::expr);
+                            state.shift(53);
                             break;
                         case TokenType::MINUS:
-                            state.shift(61);
+                            state.shift(40);
+                            break;
+                        case TokenType::PLUS:
+                            state.shift(75);
                             break;
                         default:
                             state.fail();
@@ -234,24 +284,24 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 11:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::STAR:
-                            state.shift(64);
-                            break;
-                        case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::LBRACK:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
-                        case TokenType::SEMICOLON:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::MINUS:
-                        case TokenType::PERCENT:
+                        case TokenType::LBRACE:
                         case TokenType::SLASH:
                         case TokenType::LPAREN:
-                        case TokenType::LBRACE:
+                        case TokenType::STAR:
+                        case TokenType::PLUS:
+                        case TokenType::STARSTAR:
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::COMMA:
+                        case TokenType::E0F:
+                        case TokenType::ID:
+                        case TokenType::RBRACE:
+                        case TokenType::NUM:
+                        case TokenType::LBRACK:
+                        case TokenType::SEMICOLON:
+                        case TokenType::STRING:
                         case TokenType::RPAREN:
-                            state.reduce(3, NonterminalType::exprcat1);
+                            state.reduce(3, NonterminalType::fncall);
                             break;
                         default:
                             state.fail();
@@ -259,46 +309,13 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 12:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::LBRACE:
-                            state.shift(5);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 13:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::ID:
-                            state.shift(6);
-                            break;
-                        case TokenType::STRING:
-                            state.shift(27);
-                            break;
-                        case TokenType::LBRACE:
-                            state.shift(51);
-                            break;
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
-                        case TokenType::LPAREN:
-                            state.shift(28);
-                            break;
-                        case TokenType::LBRACK:
-                            state.shift(33);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 14:
-                    switch (state.cur.getTerminal()) {
                         case TokenType::PLUS:
-                            state.shift(66);
+                            state.shift(75);
                             break;
+                        case TokenType::LBRACK:
+                        case TokenType::STRING:
                         case TokenType::LBRACE:
                         case TokenType::LPAREN:
-                        case TokenType::STRING:
-                        case TokenType::LBRACK:
                         case TokenType::SEMICOLON:
                         case TokenType::E0F:
                         case TokenType::RPAREN:
@@ -308,7 +325,58 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                             state.reduce(3, NonterminalType::expr);
                             break;
                         case TokenType::MINUS:
-                            state.shift(61);
+                            state.shift(40);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 13:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::PLUS:
+                            state.shift(75);
+                            break;
+                        case TokenType::LBRACK:
+                        case TokenType::STRING:
+                        case TokenType::LBRACE:
+                        case TokenType::LPAREN:
+                        case TokenType::SEMICOLON:
+                        case TokenType::E0F:
+                        case TokenType::RPAREN:
+                        case TokenType::ID:
+                        case TokenType::NUM:
+                        case TokenType::RBRACE:
+                            state.reduce(3, NonterminalType::expr);
+                            break;
+                        case TokenType::MINUS:
+                            state.shift(40);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 14:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::COMMA:
+                            state.shift(28);
+                            break;
+                        case TokenType::STAR:
+                        case TokenType::PLUS:
+                        case TokenType::RBRACE:
+                        case TokenType::LBRACK:
+                        case TokenType::RPAREN:
+                        case TokenType::SEMICOLON:
+                        case TokenType::STRING:
+                        case TokenType::STARSTAR:
+                        case TokenType::NUM:
+                        case TokenType::ID:
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::E0F:
+                        case TokenType::LPAREN:
+                        case TokenType::LBRACE:
+                        case TokenType::SLASH:
+                            state.reduce(3, NonterminalType::exprcat2);
                             break;
                         default:
                             state.fail();
@@ -316,25 +384,8 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 15:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::COMMA:
-                            state.shift(35);
-                            break;
-                        case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
-                        case TokenType::LPAREN:
-                        case TokenType::LBRACE:
-                        case TokenType::SLASH:
-                        case TokenType::LBRACK:
-                        case TokenType::SEMICOLON:
-                        case TokenType::MINUS:
-                        case TokenType::PERCENT:
-                        case TokenType::STAR:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::RPAREN:
-                            state.reduce(1, NonterminalType::exprcat2);
+                        case TokenType::RBRACK:
+                            state.reduce(3, NonterminalType::decllist);
                             break;
                         default:
                             state.fail();
@@ -342,8 +393,33 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 16:
                     switch (state.cur.getTerminal()) {
+                        case TokenType::SEMICOLON:
+                            state.shift(33);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
+                            break;
+                        case TokenType::LPAREN:
+                            state.shift(62);
+                            break;
+                        case TokenType::MINUS:
+                            state.shift(41);
+                            break;
+                        case TokenType::RBRACE:
+                        case TokenType::E0F:
+                            state.reduce(0, NonterminalType::proc);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
+                            break;
+                        case TokenType::LBRACK:
+                            state.shift(35);
+                            break;
                         case TokenType::ID:
-                            state.shift(60);
+                            state.shift(54);
                             break;
                         default:
                             state.fail();
@@ -351,26 +427,29 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 17:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::NUM:
-                            state.shift(54);
+                        case TokenType::MINUS:
+                            state.shift(41);
                             break;
                         case TokenType::LBRACK:
-                            state.shift(33);
+                            state.shift(35);
                             break;
-                        case TokenType::STRING:
-                            state.shift(27);
-                            break;
-                        case TokenType::ID:
-                            state.shift(53);
-                            break;
-                        case TokenType::RPAREN:
-                            state.shift(30);
-                            break;
-                        case TokenType::LBRACE:
-                            state.shift(51);
+                        case TokenType::NUM:
+                            state.shift(29);
                             break;
                         case TokenType::LPAREN:
-                            state.shift(28);
+                            state.shift(62);
+                            break;
+                        case TokenType::RPAREN:
+                            state.shift(55);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::ID:
+                            state.shift(76);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
                             break;
                         default:
                             state.fail();
@@ -378,8 +457,25 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 18:
                     switch (state.cur.getTerminal()) {
+                        case TokenType::STARSTAR:
+                            state.shift(70);
+                            break;
+                        case TokenType::LBRACK:
+                        case TokenType::ID:
+                        case TokenType::NUM:
+                        case TokenType::E0F:
+                        case TokenType::STRING:
+                        case TokenType::SEMICOLON:
+                        case TokenType::RBRACE:
+                        case TokenType::PLUS:
+                        case TokenType::RPAREN:
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::SLASH:
+                        case TokenType::LPAREN:
                         case TokenType::LBRACE:
-                            state.shift(21);
+                        case TokenType::STAR:
+                            state.reduce(3, NonterminalType::exprcat1);
                             break;
                         default:
                             state.fail();
@@ -387,26 +483,8 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 19:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
-                        case TokenType::LBRACK:
-                            state.shift(33);
-                            break;
-                        case TokenType::RPAREN:
-                            state.shift(30);
-                            break;
-                        case TokenType::ID:
-                            state.shift(53);
-                            break;
-                        case TokenType::STRING:
-                            state.shift(27);
-                            break;
-                        case TokenType::LBRACE:
-                            state.shift(51);
-                            break;
-                        case TokenType::LPAREN:
-                            state.shift(28);
+                        case TokenType::RBRACE:
+                            state.shift(2);
                             break;
                         default:
                             state.fail();
@@ -414,24 +492,25 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 20:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::STAR:
-                            state.shift(64);
+                        case TokenType::STARSTAR:
+                            state.shift(70);
                             break;
+                        case TokenType::LBRACK:
                         case TokenType::ID:
                         case TokenType::NUM:
-                        case TokenType::LBRACK:
                         case TokenType::E0F:
                         case TokenType::STRING:
                         case TokenType::SEMICOLON:
                         case TokenType::RBRACE:
                         case TokenType::PLUS:
+                        case TokenType::RPAREN:
                         case TokenType::MINUS:
                         case TokenType::PERCENT:
                         case TokenType::SLASH:
                         case TokenType::LPAREN:
                         case TokenType::LBRACE:
-                        case TokenType::RPAREN:
-                            state.reduce(1, NonterminalType::exprcat1);
+                        case TokenType::STAR:
+                            state.reduce(3, NonterminalType::exprcat1);
                             break;
                         default:
                             state.fail();
@@ -439,30 +518,24 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 21:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::LBRACK:
-                            state.shift(33);
-                            break;
-                        case TokenType::ID:
-                            state.shift(53);
-                            break;
-                        case TokenType::RBRACE:
-                        case TokenType::E0F:
-                            state.reduce(0, NonterminalType::proc);
-                            break;
-                        case TokenType::SEMICOLON:
-                            state.shift(49);
-                            break;
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::STARSTAR:
+                        case TokenType::SLASH:
                         case TokenType::LBRACE:
-                            state.shift(51);
-                            break;
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
                         case TokenType::LPAREN:
-                            state.shift(28);
-                            break;
+                        case TokenType::STAR:
+                        case TokenType::PLUS:
                         case TokenType::STRING:
-                            state.shift(27);
+                        case TokenType::RPAREN:
+                        case TokenType::SEMICOLON:
+                        case TokenType::COMMA:
+                        case TokenType::E0F:
+                        case TokenType::ID:
+                        case TokenType::NUM:
+                        case TokenType::RBRACE:
+                        case TokenType::LBRACK:
+                            state.reduce(2, NonterminalType::expratom);
                             break;
                         default:
                             state.fail();
@@ -470,25 +543,26 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 22:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::LPAREN:
-                            state.shift(17);
+                        case TokenType::LBRACK:
+                            state.shift(51);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
                             break;
                         case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::LBRACK:
-                        case TokenType::E0F:
+                            state.shift(73);
+                            break;
+                        case TokenType::LPAREN:
+                            state.shift(62);
+                            break;
                         case TokenType::LBRACE:
-                        case TokenType::SLASH:
-                        case TokenType::COMMA:
-                        case TokenType::STRING:
-                        case TokenType::SEMICOLON:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::RPAREN:
-                        case TokenType::STAR:
+                            state.shift(38);
+                            break;
                         case TokenType::MINUS:
-                        case TokenType::PERCENT:
-                            state.reduce(1, NonterminalType::expratom);
+                            state.shift(41);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
                             break;
                         default:
                             state.fail();
@@ -496,23 +570,29 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 23:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::SEMICOLON:
-                        case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
-                        case TokenType::LBRACK:
-                        case TokenType::RPAREN:
-                        case TokenType::LBRACE:
-                        case TokenType::LPAREN:
-                        case TokenType::SLASH:
-                        case TokenType::COMMA:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::STAR:
                         case TokenType::MINUS:
-                        case TokenType::PERCENT:
-                            state.reduce(1, NonterminalType::expratom);
+                            state.shift(41);
+                            break;
+                        case TokenType::LBRACK:
+                            state.shift(35);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
+                            break;
+                        case TokenType::LPAREN:
+                            state.shift(62);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::RPAREN:
+                            state.shift(55);
+                            break;
+                        case TokenType::ID:
+                            state.shift(76);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
                             break;
                         default:
                             state.fail();
@@ -520,25 +600,26 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 24:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::LPAREN:
-                            state.shift(17);
-                            break;
-                        case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::LBRACK:
-                        case TokenType::E0F:
-                        case TokenType::LBRACE:
-                        case TokenType::SLASH:
                         case TokenType::COMMA:
-                        case TokenType::STRING:
-                        case TokenType::SEMICOLON:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::RPAREN:
+                            state.shift(28);
+                            break;
                         case TokenType::STAR:
+                        case TokenType::PLUS:
+                        case TokenType::RBRACE:
+                        case TokenType::LBRACK:
+                        case TokenType::RPAREN:
+                        case TokenType::SEMICOLON:
+                        case TokenType::STRING:
+                        case TokenType::STARSTAR:
+                        case TokenType::NUM:
+                        case TokenType::ID:
                         case TokenType::MINUS:
                         case TokenType::PERCENT:
-                            state.reduce(1, NonterminalType::expratom);
+                        case TokenType::E0F:
+                        case TokenType::LPAREN:
+                        case TokenType::LBRACE:
+                        case TokenType::SLASH:
+                            state.reduce(1, NonterminalType::exprcat2);
                             break;
                         default:
                             state.fail();
@@ -546,22 +627,14 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 25:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::PLUS:
-                            state.shift(66);
-                            break;
-                        case TokenType::SEMICOLON:
-                        case TokenType::STRING:
-                        case TokenType::NUM:
-                        case TokenType::ID:
-                        case TokenType::LBRACK:
-                        case TokenType::E0F:
-                        case TokenType::LPAREN:
-                        case TokenType::LBRACE:
-                        case TokenType::RBRACE:
-                            state.reduce(1, NonterminalType::statement);
+                        case TokenType::RPAREN:
+                            state.shift(3);
                             break;
                         case TokenType::MINUS:
-                            state.shift(61);
+                            state.shift(40);
+                            break;
+                        case TokenType::PLUS:
+                            state.shift(75);
                             break;
                         default:
                             state.fail();
@@ -569,23 +642,26 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 26:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::SEMICOLON:
-                        case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::LBRACK:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
+                        case TokenType::COMMA:
+                            state.shift(28);
+                            break;
                         case TokenType::STAR:
+                        case TokenType::PLUS:
+                        case TokenType::RBRACE:
+                        case TokenType::LBRACK:
                         case TokenType::RPAREN:
-                        case TokenType::PERCENT:
+                        case TokenType::SEMICOLON:
+                        case TokenType::STRING:
+                        case TokenType::STARSTAR:
+                        case TokenType::NUM:
+                        case TokenType::ID:
                         case TokenType::MINUS:
-                        case TokenType::SLASH:
+                        case TokenType::PERCENT:
+                        case TokenType::E0F:
                         case TokenType::LPAREN:
                         case TokenType::LBRACE:
-                        case TokenType::COMMA:
-                            state.reduce(5, NonterminalType::fn);
+                        case TokenType::SLASH:
+                            state.reduce(1, NonterminalType::exprcat2);
                             break;
                         default:
                             state.fail();
@@ -593,23 +669,25 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 27:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::SEMICOLON:
+                        case TokenType::STARSTAR:
+                            state.shift(70);
+                            break;
+                        case TokenType::LBRACK:
                         case TokenType::ID:
                         case TokenType::NUM:
                         case TokenType::E0F:
                         case TokenType::STRING:
-                        case TokenType::LBRACK:
-                        case TokenType::RPAREN:
-                        case TokenType::LBRACE:
-                        case TokenType::LPAREN:
-                        case TokenType::SLASH:
-                        case TokenType::COMMA:
+                        case TokenType::SEMICOLON:
                         case TokenType::RBRACE:
                         case TokenType::PLUS:
-                        case TokenType::STAR:
+                        case TokenType::RPAREN:
                         case TokenType::MINUS:
                         case TokenType::PERCENT:
-                            state.reduce(1, NonterminalType::expratom);
+                        case TokenType::SLASH:
+                        case TokenType::LPAREN:
+                        case TokenType::LBRACE:
+                        case TokenType::STAR:
+                            state.reduce(1, NonterminalType::exprcat1);
                             break;
                         default:
                             state.fail();
@@ -617,23 +695,38 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 28:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
-                        case TokenType::ID:
-                            state.shift(53);
-                            break;
                         case TokenType::STRING:
-                            state.shift(27);
-                            break;
-                        case TokenType::LBRACE:
-                            state.shift(51);
+                            state.shift(43);
                             break;
                         case TokenType::LPAREN:
-                            state.shift(28);
+                            state.shift(62);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::PERCENT:
+                        case TokenType::RPAREN:
+                        case TokenType::SEMICOLON:
+                        case TokenType::STAR:
+                        case TokenType::STARSTAR:
+                        case TokenType::PLUS:
+                        case TokenType::RBRACE:
+                        case TokenType::COMMA:
+                        case TokenType::SLASH:
+                        case TokenType::E0F:
+                            state.reduce(2, NonterminalType::exprcat3);
+                            break;
+                        case TokenType::MINUS:
+                            state.shift(41);
+                            break;
+                        case TokenType::ID:
+                            state.shift(48);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
                             break;
                         case TokenType::LBRACK:
-                            state.shift(33);
+                            state.shift(35);
                             break;
                         default:
                             state.fail();
@@ -641,23 +734,24 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 29:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::ID:
-                            state.shift(6);
-                            break;
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
-                        case TokenType::STRING:
-                            state.shift(27);
-                            break;
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::STARSTAR:
+                        case TokenType::SLASH:
                         case TokenType::LBRACE:
-                            state.shift(51);
-                            break;
-                        case TokenType::LBRACK:
-                            state.shift(33);
-                            break;
                         case TokenType::LPAREN:
-                            state.shift(28);
+                        case TokenType::STAR:
+                        case TokenType::PLUS:
+                        case TokenType::STRING:
+                        case TokenType::RPAREN:
+                        case TokenType::SEMICOLON:
+                        case TokenType::COMMA:
+                        case TokenType::E0F:
+                        case TokenType::ID:
+                        case TokenType::NUM:
+                        case TokenType::RBRACE:
+                        case TokenType::LBRACK:
+                            state.reduce(1, NonterminalType::expratom);
                             break;
                         default:
                             state.fail();
@@ -665,23 +759,8 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 30:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::SEMICOLON:
-                        case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::LBRACK:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::RPAREN:
-                        case TokenType::STAR:
-                        case TokenType::MINUS:
-                        case TokenType::PERCENT:
-                        case TokenType::LPAREN:
-                        case TokenType::COMMA:
-                        case TokenType::SLASH:
                         case TokenType::LBRACE:
-                            state.reduce(3, NonterminalType::fncall);
+                            state.shift(1);
                             break;
                         default:
                             state.fail();
@@ -689,11 +768,33 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 31:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::EQSIGNAL:
-                            state.shift(65);
+                        case TokenType::SEMICOLON:
+                            state.shift(33);
                             break;
-                        case TokenType::EQUALS:
-                            state.shift(37);
+                        case TokenType::STRING:
+                            state.shift(43);
+                            break;
+                        case TokenType::LPAREN:
+                            state.shift(62);
+                            break;
+                        case TokenType::MINUS:
+                            state.shift(41);
+                            break;
+                        case TokenType::RBRACE:
+                        case TokenType::E0F:
+                            state.reduce(0, NonterminalType::proc);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::ID:
+                            state.shift(54);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
+                            break;
+                        case TokenType::LBRACK:
+                            state.shift(35);
                             break;
                         default:
                             state.fail();
@@ -701,11 +802,26 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 32:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::COMMA:
-                            state.shift(16);
+                        case TokenType::LPAREN:
+                            state.shift(37);
                             break;
-                        case TokenType::RBRACK:
-                            state.reduce(1, NonterminalType::decllist);
+                        case TokenType::LBRACK:
+                        case TokenType::NUM:
+                        case TokenType::ID:
+                        case TokenType::E0F:
+                        case TokenType::SEMICOLON:
+                        case TokenType::RPAREN:
+                        case TokenType::STRING:
+                        case TokenType::RBRACE:
+                        case TokenType::PLUS:
+                        case TokenType::STARSTAR:
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::COMMA:
+                        case TokenType::LBRACE:
+                        case TokenType::SLASH:
+                        case TokenType::STAR:
+                            state.reduce(1, NonterminalType::expratom);
                             break;
                         default:
                             state.fail();
@@ -713,11 +829,17 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 33:
                     switch (state.cur.getTerminal()) {
+                        case TokenType::SEMICOLON:
+                        case TokenType::LBRACK:
+                        case TokenType::E0F:
+                        case TokenType::STRING:
+                        case TokenType::NUM:
                         case TokenType::ID:
-                            state.shift(60);
-                            break;
-                        case TokenType::RBRACK:
-                            state.shift(18);
+                        case TokenType::LPAREN:
+                        case TokenType::LBRACE:
+                        case TokenType::MINUS:
+                        case TokenType::RBRACE:
+                            state.reduce(1, NonterminalType::statement);
                             break;
                         default:
                             state.fail();
@@ -725,25 +847,24 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 34:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::COMMA:
-                            state.shift(35);
-                            break;
-                        case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
+                        case TokenType::STARSTAR:
+                        case TokenType::PLUS:
+                        case TokenType::STAR:
                         case TokenType::LPAREN:
                         case TokenType::LBRACE:
                         case TokenType::SLASH:
-                        case TokenType::LBRACK:
-                        case TokenType::SEMICOLON:
                         case TokenType::MINUS:
                         case TokenType::PERCENT:
-                        case TokenType::STAR:
+                        case TokenType::COMMA:
+                        case TokenType::E0F:
+                        case TokenType::ID:
                         case TokenType::RBRACE:
-                        case TokenType::PLUS:
+                        case TokenType::NUM:
+                        case TokenType::LBRACK:
+                        case TokenType::SEMICOLON:
+                        case TokenType::STRING:
                         case TokenType::RPAREN:
-                            state.reduce(1, NonterminalType::exprcat2);
+                            state.reduce(6, NonterminalType::fn);
                             break;
                         default:
                             state.fail();
@@ -751,35 +872,11 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 35:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::STRING:
-                            state.shift(27);
-                            break;
-                        case TokenType::LPAREN:
-                            state.shift(28);
-                            break;
-                        case TokenType::LBRACE:
-                            state.shift(51);
-                            break;
-                        case TokenType::MINUS:
-                        case TokenType::PERCENT:
-                        case TokenType::RPAREN:
-                        case TokenType::SEMICOLON:
-                        case TokenType::STAR:
-                        case TokenType::PLUS:
-                        case TokenType::RBRACE:
-                        case TokenType::COMMA:
-                        case TokenType::SLASH:
-                        case TokenType::E0F:
-                            state.reduce(2, NonterminalType::expratom);
-                            break;
                         case TokenType::ID:
-                            state.shift(6);
+                            state.shift(46);
                             break;
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
-                        case TokenType::LBRACK:
-                            state.shift(33);
+                        case TokenType::RBRACK:
+                            state.shift(72);
                             break;
                         default:
                             state.fail();
@@ -787,8 +884,24 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 36:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::B0F:
-                            state.shift(57);
+                        case TokenType::LBRACE:
+                        case TokenType::SLASH:
+                        case TokenType::LPAREN:
+                        case TokenType::STAR:
+                        case TokenType::PLUS:
+                        case TokenType::STARSTAR:
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::COMMA:
+                        case TokenType::E0F:
+                        case TokenType::ID:
+                        case TokenType::RBRACE:
+                        case TokenType::NUM:
+                        case TokenType::LBRACK:
+                        case TokenType::SEMICOLON:
+                        case TokenType::STRING:
+                        case TokenType::RPAREN:
+                            state.reduce(4, NonterminalType::fncall);
                             break;
                         default:
                             state.fail();
@@ -796,23 +909,29 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 37:
                     switch (state.cur.getTerminal()) {
+                        case TokenType::MINUS:
+                            state.shift(41);
+                            break;
                         case TokenType::NUM:
-                            state.shift(54);
-                            break;
-                        case TokenType::ID:
-                            state.shift(53);
-                            break;
-                        case TokenType::STRING:
-                            state.shift(27);
+                            state.shift(29);
                             break;
                         case TokenType::LBRACE:
-                            state.shift(51);
+                            state.shift(38);
                             break;
                         case TokenType::LPAREN:
-                            state.shift(28);
+                            state.shift(62);
+                            break;
+                        case TokenType::ID:
+                            state.shift(76);
                             break;
                         case TokenType::LBRACK:
-                            state.shift(33);
+                            state.shift(35);
+                            break;
+                        case TokenType::RPAREN:
+                            state.shift(11);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
                             break;
                         default:
                             state.fail();
@@ -821,24 +940,32 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                 case 38:
                     switch (state.cur.getTerminal()) {
                         case TokenType::LPAREN:
-                            state.shift(19);
+                            state.shift(62);
                             break;
                         case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::LBRACK:
-                        case TokenType::E0F:
-                        case TokenType::LBRACE:
-                        case TokenType::SLASH:
-                        case TokenType::COMMA:
-                        case TokenType::STRING:
-                        case TokenType::SEMICOLON:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::RPAREN:
-                        case TokenType::STAR:
+                            state.shift(54);
+                            break;
                         case TokenType::MINUS:
-                        case TokenType::PERCENT:
-                            state.reduce(1, NonterminalType::expratom);
+                            state.shift(41);
+                            break;
+                        case TokenType::RBRACE:
+                        case TokenType::E0F:
+                            state.reduce(0, NonterminalType::proc);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
+                            break;
+                        case TokenType::SEMICOLON:
+                            state.shift(33);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::LBRACK:
+                            state.shift(35);
                             break;
                         default:
                             state.fail();
@@ -846,17 +973,215 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 39:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::SLASH:
-                            state.shift(56);
-                            break;
+                        case TokenType::STAR:
+                        case TokenType::MINUS:
                         case TokenType::PERCENT:
-                            state.shift(48);
-                            break;
-                        case TokenType::LBRACK:
                         case TokenType::LPAREN:
                         case TokenType::LBRACE:
+                        case TokenType::SLASH:
+                        case TokenType::PLUS:
+                        case TokenType::STARSTAR:
+                        case TokenType::COMMA:
+                        case TokenType::E0F:
+                        case TokenType::ID:
+                        case TokenType::RBRACE:
+                        case TokenType::NUM:
+                        case TokenType::LBRACK:
+                        case TokenType::SEMICOLON:
                         case TokenType::STRING:
+                        case TokenType::RPAREN:
+                            state.reduce(1, NonterminalType::exprcat3);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 40:
+                    switch (state.cur.getTerminal()) {
                         case TokenType::MINUS:
+                            state.shift(41);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::ID:
+                            state.shift(73);
+                            break;
+                        case TokenType::LPAREN:
+                            state.shift(62);
+                            break;
+                        case TokenType::LBRACK:
+                            state.shift(51);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 41:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::NUM:
+                            state.shift(21);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 42:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::RBRACE:
+                            state.shift(34);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 43:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::STARSTAR:
+                        case TokenType::SLASH:
+                        case TokenType::LBRACE:
+                        case TokenType::LPAREN:
+                        case TokenType::STAR:
+                        case TokenType::PLUS:
+                        case TokenType::STRING:
+                        case TokenType::RPAREN:
+                        case TokenType::SEMICOLON:
+                        case TokenType::COMMA:
+                        case TokenType::E0F:
+                        case TokenType::ID:
+                        case TokenType::NUM:
+                        case TokenType::RBRACE:
+                        case TokenType::LBRACK:
+                            state.reduce(1, NonterminalType::expratom);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 44:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::MINUS:
+                            state.shift(40);
+                            break;
+                        case TokenType::RPAREN:
+                            state.shift(36);
+                            break;
+                        case TokenType::PLUS:
+                            state.shift(75);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 45:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::LPAREN:
+                            state.shift(62);
+                            break;
+                        case TokenType::ID:
+                            state.shift(54);
+                            break;
+                        case TokenType::MINUS:
+                            state.shift(41);
+                            break;
+                        case TokenType::RBRACE:
+                        case TokenType::E0F:
+                            state.reduce(0, NonterminalType::proc);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
+                            break;
+                        case TokenType::SEMICOLON:
+                            state.shift(33);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::LBRACK:
+                            state.shift(35);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 46:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::COMMA:
+                        case TokenType::RBRACK:
+                            state.reduce(1, NonterminalType::decl);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 47:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::B0F:
+                            state.shift(45);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 48:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::LPAREN:
+                            state.shift(23);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 49:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::STARSTAR:
+                            state.shift(70);
+                            break;
+                        case TokenType::LBRACK:
+                        case TokenType::ID:
+                        case TokenType::NUM:
+                        case TokenType::E0F:
+                        case TokenType::STRING:
+                        case TokenType::SEMICOLON:
+                        case TokenType::RBRACE:
+                        case TokenType::PLUS:
+                        case TokenType::RPAREN:
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::SLASH:
+                        case TokenType::LPAREN:
+                        case TokenType::LBRACE:
+                        case TokenType::STAR:
+                            state.reduce(3, NonterminalType::exprcat1);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 50:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::SLASH:
+                            state.shift(60);
+                            break;
+                        case TokenType::PERCENT:
+                            state.shift(22);
+                            break;
+                        case TokenType::LBRACK:
+                        case TokenType::LBRACE:
+                        case TokenType::LPAREN:
+                        case TokenType::MINUS:
+                        case TokenType::STRING:
                         case TokenType::SEMICOLON:
                         case TokenType::E0F:
                         case TokenType::RBRACE:
@@ -867,166 +1192,381 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                             state.reduce(1, NonterminalType::expr);
                             break;
                         case TokenType::STAR:
-                            state.shift(29);
+                            state.shift(58);
                             break;
                         default:
                             state.fail();
                     }
                     break;
-                case 40:
+                case 51:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::COMMA:
-                            state.shift(35);
-                            break;
                         case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
-                        case TokenType::LPAREN:
-                        case TokenType::LBRACE:
-                        case TokenType::SLASH:
-                        case TokenType::LBRACK:
-                        case TokenType::SEMICOLON:
-                        case TokenType::MINUS:
-                        case TokenType::PERCENT:
-                        case TokenType::STAR:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::RPAREN:
-                            state.reduce(4, NonterminalType::exprcat2);
+                            state.shift(46);
+                            break;
+                        case TokenType::RBRACK:
+                            state.shift(72);
                             break;
                         default:
                             state.fail();
                     }
                     break;
-                case 41:
+                case 52:
                     if (state.cur.isTerminal()) {
                         state.reduce(3, NonterminalType::start);
                     }
                     break;
-                case 42:
+                case 53:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::STAR:
-                            state.shift(29);
-                            break;
-                        case TokenType::SLASH:
-                            state.shift(56);
-                            break;
-                        case TokenType::LBRACK:
-                        case TokenType::LPAREN:
                         case TokenType::LBRACE:
-                        case TokenType::STRING:
-                        case TokenType::MINUS:
-                        case TokenType::SEMICOLON:
-                        case TokenType::E0F:
-                        case TokenType::RBRACE:
+                        case TokenType::SLASH:
+                        case TokenType::LPAREN:
+                        case TokenType::STAR:
                         case TokenType::PLUS:
-                        case TokenType::RPAREN:
-                        case TokenType::NUM:
-                        case TokenType::ID:
-                            state.reduce(3, NonterminalType::expr);
-                            break;
+                        case TokenType::STARSTAR:
+                        case TokenType::MINUS:
                         case TokenType::PERCENT:
-                            state.shift(48);
+                        case TokenType::COMMA:
+                        case TokenType::E0F:
+                        case TokenType::ID:
+                        case TokenType::RBRACE:
+                        case TokenType::NUM:
+                        case TokenType::LBRACK:
+                        case TokenType::SEMICOLON:
+                        case TokenType::STRING:
+                        case TokenType::RPAREN:
+                            state.reduce(4, NonterminalType::fncall);
                             break;
                         default:
                             state.fail();
                     }
                     break;
-                case 43:
+                case 54:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::LPAREN:
+                            state.shift(23);
+                            break;
+                        case TokenType::EQSIGNAL:
+                        case TokenType::EQUALS:
+                            state.reduce(1, NonterminalType::lvalue);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 55:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::LBRACE:
+                        case TokenType::SLASH:
+                        case TokenType::LPAREN:
+                        case TokenType::STAR:
+                        case TokenType::PLUS:
+                        case TokenType::STARSTAR:
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::COMMA:
+                        case TokenType::E0F:
+                        case TokenType::ID:
+                        case TokenType::RBRACE:
+                        case TokenType::NUM:
+                        case TokenType::LBRACK:
+                        case TokenType::SEMICOLON:
+                        case TokenType::STRING:
+                        case TokenType::RPAREN:
+                            state.reduce(3, NonterminalType::fncall);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 56:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::EQSIGNAL:
+                            state.shift(63);
+                            break;
+                        case TokenType::EQUALS:
+                            state.shift(64);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 57:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::COMMA:
+                            state.shift(74);
+                            break;
+                        case TokenType::RBRACK:
+                            state.reduce(1, NonterminalType::decllist);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 58:
                     switch (state.cur.getTerminal()) {
                         case TokenType::LBRACK:
-                            state.shift(33);
-                            break;
-                        case TokenType::ID:
-                            state.shift(53);
-                            break;
-                        case TokenType::RBRACE:
-                        case TokenType::E0F:
-                            state.reduce(0, NonterminalType::proc);
-                            break;
-                        case TokenType::SEMICOLON:
-                            state.shift(49);
-                            break;
-                        case TokenType::LBRACE:
                             state.shift(51);
                             break;
                         case TokenType::NUM:
-                            state.shift(54);
+                            state.shift(29);
+                            break;
+                        case TokenType::ID:
+                            state.shift(73);
                             break;
                         case TokenType::LPAREN:
-                            state.shift(28);
+                            state.shift(62);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::MINUS:
+                            state.shift(41);
                             break;
                         case TokenType::STRING:
-                            state.shift(27);
+                            state.shift(43);
                             break;
                         default:
                             state.fail();
                     }
                     break;
-                case 44:
+                case 59:
                     switch (state.cur.getTerminal()) {
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::STARSTAR:
+                        case TokenType::SLASH:
+                        case TokenType::LBRACE:
+                        case TokenType::LPAREN:
+                        case TokenType::STAR:
+                        case TokenType::PLUS:
+                        case TokenType::STRING:
+                        case TokenType::RPAREN:
+                        case TokenType::SEMICOLON:
                         case TokenType::COMMA:
-                            state.shift(35);
-                            break;
+                        case TokenType::E0F:
                         case TokenType::ID:
                         case TokenType::NUM:
-                        case TokenType::E0F:
+                        case TokenType::RBRACE:
+                        case TokenType::LBRACK:
+                            state.reduce(1, NonterminalType::expratom);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 60:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::LBRACK:
+                            state.shift(51);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
+                            break;
+                        case TokenType::ID:
+                            state.shift(73);
+                            break;
+                        case TokenType::LPAREN:
+                            state.shift(62);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::MINUS:
+                            state.shift(41);
+                            break;
                         case TokenType::STRING:
+                            state.shift(43);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 61:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::E0F:
+                            state.shift(52);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 62:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::MINUS:
+                            state.shift(41);
+                            break;
+                        case TokenType::LBRACK:
+                            state.shift(35);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
+                            break;
+                        case TokenType::LPAREN:
+                            state.shift(62);
+                            break;
+                        case TokenType::ID:
+                            state.shift(76);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 63:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::MINUS:
+                            state.shift(41);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
+                            break;
+                        case TokenType::LBRACK:
+                            state.shift(35);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::LPAREN:
+                            state.shift(62);
+                            break;
+                        case TokenType::ID:
+                            state.shift(76);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 64:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::ID:
+                            state.shift(76);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
+                            break;
+                        case TokenType::LBRACK:
+                            state.shift(35);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        case TokenType::LPAREN:
+                            state.shift(62);
+                            break;
+                        case TokenType::MINUS:
+                            state.shift(41);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 65:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::PLUS:
+                            state.shift(75);
+                            break;
+                        case TokenType::SEMICOLON:
+                        case TokenType::LBRACK:
+                        case TokenType::STRING:
+                        case TokenType::NUM:
+                        case TokenType::ID:
+                        case TokenType::LPAREN:
+                        case TokenType::LBRACE:
+                        case TokenType::E0F:
+                        case TokenType::RBRACE:
+                            state.reduce(1, NonterminalType::statement);
+                            break;
+                        case TokenType::MINUS:
+                            state.shift(40);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 66:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::COMMA:
+                            state.shift(28);
+                            break;
+                        case TokenType::STAR:
+                        case TokenType::PLUS:
+                        case TokenType::RBRACE:
+                        case TokenType::LBRACK:
+                        case TokenType::RPAREN:
+                        case TokenType::SEMICOLON:
+                        case TokenType::STRING:
+                        case TokenType::STARSTAR:
+                        case TokenType::NUM:
+                        case TokenType::ID:
+                        case TokenType::MINUS:
+                        case TokenType::PERCENT:
+                        case TokenType::E0F:
                         case TokenType::LPAREN:
                         case TokenType::LBRACE:
                         case TokenType::SLASH:
-                        case TokenType::LBRACK:
-                        case TokenType::SEMICOLON:
-                        case TokenType::MINUS:
-                        case TokenType::PERCENT:
-                        case TokenType::STAR:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::RPAREN:
                             state.reduce(1, NonterminalType::exprcat2);
                             break;
                         default:
                             state.fail();
                     }
                     break;
-                case 45:
+                case 67:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::SEMICOLON:
-                        case TokenType::ID:
-                        case TokenType::NUM:
+                        case TokenType::LPAREN:
+                            state.shift(8);
+                            break;
                         case TokenType::LBRACK:
+                        case TokenType::NUM:
+                        case TokenType::ID:
                         case TokenType::E0F:
+                        case TokenType::SEMICOLON:
+                        case TokenType::RPAREN:
                         case TokenType::STRING:
                         case TokenType::RBRACE:
                         case TokenType::PLUS:
-                        case TokenType::STAR:
-                        case TokenType::RPAREN:
-                        case TokenType::PERCENT:
+                        case TokenType::STARSTAR:
                         case TokenType::MINUS:
-                        case TokenType::SLASH:
-                        case TokenType::LPAREN:
-                        case TokenType::LBRACE:
+                        case TokenType::PERCENT:
                         case TokenType::COMMA:
-                            state.reduce(6, NonterminalType::fn);
+                        case TokenType::LBRACE:
+                        case TokenType::SLASH:
+                        case TokenType::STAR:
+                            state.reduce(1, NonterminalType::expratom);
                             break;
                         default:
                             state.fail();
                     }
                     break;
-                case 46:
+                case 68:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::STAR:
-                            state.shift(29);
+                        case TokenType::RBRACK:
+                            state.shift(30);
                             break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 69:
+                    switch (state.cur.getTerminal()) {
                         case TokenType::SLASH:
-                            state.shift(56);
+                            state.shift(60);
                             break;
                         case TokenType::LBRACK:
-                        case TokenType::LPAREN:
                         case TokenType::LBRACE:
-                        case TokenType::STRING:
+                        case TokenType::LPAREN:
                         case TokenType::MINUS:
+                        case TokenType::STRING:
                         case TokenType::SEMICOLON:
                         case TokenType::E0F:
                         case TokenType::RBRACE:
@@ -1036,14 +1576,44 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                         case TokenType::ID:
                             state.reduce(3, NonterminalType::expr);
                             break;
+                        case TokenType::STAR:
+                            state.shift(58);
+                            break;
                         case TokenType::PERCENT:
-                            state.shift(48);
+                            state.shift(22);
                             break;
                         default:
                             state.fail();
                     }
                     break;
-                case 47:
+                case 70:
+                    switch (state.cur.getTerminal()) {
+                        case TokenType::MINUS:
+                            state.shift(41);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
+                            break;
+                        case TokenType::LBRACK:
+                            state.shift(51);
+                            break;
+                        case TokenType::ID:
+                            state.shift(73);
+                            break;
+                        case TokenType::LPAREN:
+                            state.shift(62);
+                            break;
+                        case TokenType::STRING:
+                            state.shift(43);
+                            break;
+                        case TokenType::LBRACE:
+                            state.shift(38);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 71:
                     switch (state.cur.getTerminal()) {
                         case TokenType::E0F:
                         case TokenType::RBRACE:
@@ -1053,388 +1623,68 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                             state.fail();
                     }
                     break;
-                case 48:
+                case 72:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::LPAREN:
-                            state.shift(28);
-                            break;
-                        case TokenType::STRING:
-                            state.shift(27);
-                            break;
                         case TokenType::LBRACE:
-                            state.shift(51);
-                            break;
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
-                        case TokenType::LBRACK:
-                            state.shift(33);
-                            break;
-                        case TokenType::ID:
-                            state.shift(6);
+                            state.shift(16);
                             break;
                         default:
                             state.fail();
                     }
                     break;
-                case 49:
+                case 73:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::RBRACE:
-                        case TokenType::SEMICOLON:
-                        case TokenType::E0F:
-                        case TokenType::NUM:
-                        case TokenType::ID:
-                        case TokenType::LBRACK:
                         case TokenType::LPAREN:
-                        case TokenType::LBRACE:
-                        case TokenType::STRING:
-                            state.reduce(1, NonterminalType::statement);
+                            state.shift(17);
                             break;
                         default:
                             state.fail();
                     }
                     break;
-                case 50:
+                case 74:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::SEMICOLON:
                         case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::LBRACK:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::STAR:
-                        case TokenType::RPAREN:
-                        case TokenType::PERCENT:
+                            state.shift(46);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 75:
+                    switch (state.cur.getTerminal()) {
                         case TokenType::MINUS:
-                        case TokenType::SLASH:
-                        case TokenType::LPAREN:
-                        case TokenType::LBRACE:
-                        case TokenType::COMMA:
-                            state.reduce(3, NonterminalType::fn);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 51:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::LBRACK:
-                            state.shift(33);
-                            break;
-                        case TokenType::ID:
-                            state.shift(53);
-                            break;
-                        case TokenType::RBRACE:
-                        case TokenType::E0F:
-                            state.reduce(0, NonterminalType::proc);
-                            break;
-                        case TokenType::SEMICOLON:
-                            state.shift(49);
-                            break;
-                        case TokenType::LBRACE:
-                            state.shift(51);
-                            break;
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
-                        case TokenType::LPAREN:
-                            state.shift(28);
-                            break;
-                        case TokenType::STRING:
-                            state.shift(27);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 52:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::COMMA:
-                            state.shift(35);
-                            break;
-                        case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::LBRACK:
-                        case TokenType::LBRACE:
-                        case TokenType::LPAREN:
-                        case TokenType::SLASH:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
-                        case TokenType::SEMICOLON:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::RPAREN:
-                        case TokenType::STAR:
-                        case TokenType::MINUS:
-                        case TokenType::PERCENT:
-                            state.reduce(3, NonterminalType::expratom);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 53:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::EQUALS:
-                        case TokenType::EQSIGNAL:
-                            state.reduce(1, NonterminalType::lvalue);
-                            break;
-                        case TokenType::E0F:
-                        case TokenType::COMMA:
-                        case TokenType::SLASH:
-                        case TokenType::LPAREN:
-                        case TokenType::LBRACE:
-                        case TokenType::STAR:
-                        case TokenType::PLUS:
-                        case TokenType::RBRACE:
-                        case TokenType::LBRACK:
-                        case TokenType::STRING:
-                        case TokenType::PERCENT:
-                        case TokenType::MINUS:
-                        case TokenType::NUM:
-                        case TokenType::ID:
-                        case TokenType::RPAREN:
-                        case TokenType::SEMICOLON:
-                            state.reduce(1, NonterminalType::fn);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 54:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::SEMICOLON:
-                        case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
-                        case TokenType::LBRACK:
-                        case TokenType::RPAREN:
-                        case TokenType::LBRACE:
-                        case TokenType::LPAREN:
-                        case TokenType::SLASH:
-                        case TokenType::COMMA:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::STAR:
-                        case TokenType::MINUS:
-                        case TokenType::PERCENT:
-                            state.reduce(1, NonterminalType::expratom);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 55:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::E0F:
                             state.shift(41);
                             break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 56:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::LBRACE:
+                        case TokenType::LBRACK:
                             state.shift(51);
                             break;
-                        case TokenType::LPAREN:
-                            state.shift(28);
-                            break;
                         case TokenType::STRING:
-                            state.shift(27);
-                            break;
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
-                        case TokenType::ID:
-                            state.shift(6);
-                            break;
-                        case TokenType::LBRACK:
-                            state.shift(33);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 57:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::SEMICOLON:
-                            state.shift(49);
-                            break;
-                        case TokenType::LBRACK:
-                            state.shift(33);
-                            break;
-                        case TokenType::ID:
-                            state.shift(53);
-                            break;
-                        case TokenType::RBRACE:
-                        case TokenType::E0F:
-                            state.reduce(0, NonterminalType::proc);
+                            state.shift(43);
                             break;
                         case TokenType::LBRACE:
-                            state.shift(51);
-                            break;
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
-                        case TokenType::LPAREN:
-                            state.shift(28);
-                            break;
-                        case TokenType::STRING:
-                            state.shift(27);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 58:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::RPAREN:
-                            state.shift(9);
-                            break;
-                        case TokenType::MINUS:
-                            state.shift(61);
-                            break;
-                        case TokenType::PLUS:
-                            state.shift(66);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 59:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::RBRACE:
-                            state.shift(50);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 60:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::COMMA:
-                        case TokenType::RBRACK:
-                            state.reduce(1, NonterminalType::decl);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 61:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::ID:
-                            state.shift(6);
-                            break;
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
-                        case TokenType::LBRACK:
-                            state.shift(33);
-                            break;
-                        case TokenType::STRING:
-                            state.shift(27);
-                            break;
-                        case TokenType::LBRACE:
-                            state.shift(51);
-                            break;
-                        case TokenType::LPAREN:
-                            state.shift(28);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 62:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::RBRACK:
-                            state.shift(12);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 63:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::STAR:
-                            state.shift(64);
+                            state.shift(38);
                             break;
                         case TokenType::ID:
-                        case TokenType::NUM:
-                        case TokenType::LBRACK:
-                        case TokenType::E0F:
-                        case TokenType::STRING:
-                        case TokenType::SEMICOLON:
-                        case TokenType::RBRACE:
-                        case TokenType::PLUS:
-                        case TokenType::MINUS:
-                        case TokenType::PERCENT:
-                        case TokenType::SLASH:
+                            state.shift(73);
+                            break;
                         case TokenType::LPAREN:
-                        case TokenType::LBRACE:
-                        case TokenType::RPAREN:
-                            state.reduce(3, NonterminalType::exprcat1);
+                            state.shift(62);
+                            break;
+                        case TokenType::NUM:
+                            state.shift(29);
                             break;
                         default:
                             state.fail();
                     }
                     break;
-                case 64:
+                case 76:
                     switch (state.cur.getTerminal()) {
-                        case TokenType::STAR:
-                            state.shift(13);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 65:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
-                        case TokenType::ID:
-                            state.shift(53);
-                            break;
-                        case TokenType::STRING:
-                            state.shift(27);
-                            break;
-                        case TokenType::LBRACE:
-                            state.shift(51);
-                            break;
                         case TokenType::LPAREN:
-                            state.shift(28);
+                            state.shift(17);
                             break;
-                        case TokenType::LBRACK:
-                            state.shift(33);
-                            break;
-                        default:
-                            state.fail();
-                    }
-                    break;
-                case 66:
-                    switch (state.cur.getTerminal()) {
-                        case TokenType::ID:
-                            state.shift(6);
-                            break;
-                        case TokenType::NUM:
-                            state.shift(54);
-                            break;
-                        case TokenType::LBRACK:
-                            state.shift(33);
-                            break;
-                        case TokenType::STRING:
-                            state.shift(27);
-                            break;
-                        case TokenType::LBRACE:
-                            state.shift(51);
-                            break;
-                        case TokenType::LPAREN:
-                            state.shift(28);
+                        case TokenType::EQSIGNAL:
+                        case TokenType::EQUALS:
+                            state.reduce(1, NonterminalType::lvalue);
                             break;
                         default:
                             state.fail();
@@ -1451,6 +1701,36 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 1:
                     switch (state.cur.getNonterminal()) {
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(66);
+                            break;
+                        case NonterminalType::expr:
+                            state.shiftNT(65);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(50);
+                            break;
+                        case NonterminalType::fn:
+                            state.shiftNT(32);
+                            break;
+                        case NonterminalType::proc:
+                            state.shiftNT(42);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
+                            break;
+                        case NonterminalType::statement:
+                            state.shiftNT(31);
+                            break;
+                        case NonterminalType::lvalue:
+                            state.shiftNT(56);
+                            break;
                         default:
                             state.fail();
                     }
@@ -1475,33 +1755,6 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 5:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::exprcat1:
-                            state.shiftNT(39);
-                            break;
-                        case NonterminalType::statement:
-                            state.shiftNT(43);
-                            break;
-                        case NonterminalType::fn:
-                            state.shiftNT(24);
-                            break;
-                        case NonterminalType::lvalue:
-                            state.shiftNT(31);
-                            break;
-                        case NonterminalType::expr:
-                            state.shiftNT(25);
-                            break;
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
-                            break;
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(20);
-                            break;
-                        case NonterminalType::proc:
-                            state.shiftNT(0);
-                            break;
-                        case NonterminalType::expratom:
-                            state.shiftNT(44);
-                            break;
                         default:
                             state.fail();
                     }
@@ -1520,6 +1773,30 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 8:
                     switch (state.cur.getNonterminal()) {
+                        case NonterminalType::fn:
+                            state.shiftNT(32);
+                            break;
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(66);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(50);
+                            break;
+                        case NonterminalType::expr:
+                            state.shiftNT(10);
+                            break;
+                        case NonterminalType::lvalue:
+                            state.shiftNT(56);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
+                            break;
                         default:
                             state.fail();
                     }
@@ -1550,15 +1827,6 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 13:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::expratom:
-                            state.shiftNT(40);
-                            break;
-                        case NonterminalType::fn:
-                            state.shiftNT(38);
-                            break;
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
-                            break;
                         default:
                             state.fail();
                     }
@@ -1577,11 +1845,35 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 16:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::decl:
+                        case NonterminalType::lvalue:
+                            state.shiftNT(56);
+                            break;
+                        case NonterminalType::statement:
+                            state.shiftNT(31);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
+                        case NonterminalType::expr:
+                            state.shiftNT(65);
+                            break;
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(50);
+                            break;
+                        case NonterminalType::fn:
                             state.shiftNT(32);
                             break;
-                        case NonterminalType::decllist:
-                            state.shiftNT(2);
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(66);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
+                            break;
+                        case NonterminalType::proc:
+                            state.shiftNT(0);
                             break;
                         default:
                             state.fail();
@@ -1589,26 +1881,29 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 17:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::expratom:
-                            state.shiftNT(44);
-                            break;
-                        case NonterminalType::lvalue:
-                            state.shiftNT(31);
-                            break;
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(20);
-                            break;
                         case NonterminalType::fn:
-                            state.shiftNT(24);
+                            state.shiftNT(32);
                             break;
-                        case NonterminalType::exprcat1:
-                            state.shiftNT(39);
-                            break;
-                        case NonterminalType::expr:
-                            state.shiftNT(4);
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(66);
                             break;
                         case NonterminalType::fncall:
-                            state.shiftNT(23);
+                            state.shiftNT(59);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
+                            break;
+                        case NonterminalType::expr:
+                            state.shiftNT(44);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::lvalue:
+                            state.shiftNT(56);
+                            break;
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(50);
                             break;
                         default:
                             state.fail();
@@ -1622,27 +1917,6 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 19:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::expratom:
-                            state.shiftNT(44);
-                            break;
-                        case NonterminalType::lvalue:
-                            state.shiftNT(31);
-                            break;
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(20);
-                            break;
-                        case NonterminalType::fn:
-                            state.shiftNT(24);
-                            break;
-                        case NonterminalType::exprcat1:
-                            state.shiftNT(39);
-                            break;
-                        case NonterminalType::expr:
-                            state.shiftNT(4);
-                            break;
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
-                            break;
                         default:
                             state.fail();
                     }
@@ -1655,45 +1929,57 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 21:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::exprcat1:
-                            state.shiftNT(39);
-                            break;
-                        case NonterminalType::statement:
-                            state.shiftNT(43);
-                            break;
-                        case NonterminalType::fn:
-                            state.shiftNT(24);
-                            break;
-                        case NonterminalType::lvalue:
-                            state.shiftNT(31);
-                            break;
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(20);
-                            break;
-                        case NonterminalType::expr:
-                            state.shiftNT(25);
-                            break;
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
-                            break;
-                        case NonterminalType::proc:
-                            state.shiftNT(3);
-                            break;
-                        case NonterminalType::expratom:
-                            state.shiftNT(44);
-                            break;
                         default:
                             state.fail();
                     }
                     break;
                 case 22:
                     switch (state.cur.getNonterminal()) {
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(24);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(20);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::fn:
+                            state.shiftNT(67);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
                         default:
                             state.fail();
                     }
                     break;
                 case 23:
                     switch (state.cur.getNonterminal()) {
+                        case NonterminalType::fn:
+                            state.shiftNT(32);
+                            break;
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(66);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
+                        case NonterminalType::expr:
+                            state.shiftNT(44);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
+                            break;
+                        case NonterminalType::lvalue:
+                            state.shiftNT(56);
+                            break;
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(50);
+                            break;
                         default:
                             state.fail();
                     }
@@ -1724,26 +2010,14 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 28:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::expratom:
-                            state.shiftNT(44);
-                            break;
-                        case NonterminalType::lvalue:
-                            state.shiftNT(31);
-                            break;
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(20);
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
                             break;
                         case NonterminalType::fn:
-                            state.shiftNT(24);
+                            state.shiftNT(5);
                             break;
-                        case NonterminalType::exprcat1:
-                            state.shiftNT(39);
-                            break;
-                        case NonterminalType::expr:
-                            state.shiftNT(58);
-                            break;
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
+                        case NonterminalType::expratom:
+                            state.shiftNT(7);
                             break;
                         default:
                             state.fail();
@@ -1751,18 +2025,6 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 29:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::fn:
-                            state.shiftNT(24);
-                            break;
-                        case NonterminalType::expratom:
-                            state.shiftNT(44);
-                            break;
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
-                            break;
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(7);
-                            break;
                         default:
                             state.fail();
                     }
@@ -1775,6 +2037,36 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 31:
                     switch (state.cur.getNonterminal()) {
+                        case NonterminalType::lvalue:
+                            state.shiftNT(56);
+                            break;
+                        case NonterminalType::statement:
+                            state.shiftNT(31);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
+                        case NonterminalType::expr:
+                            state.shiftNT(65);
+                            break;
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(50);
+                            break;
+                        case NonterminalType::proc:
+                            state.shiftNT(71);
+                            break;
+                        case NonterminalType::fn:
+                            state.shiftNT(32);
+                            break;
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(66);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
+                            break;
                         default:
                             state.fail();
                     }
@@ -1787,12 +2079,6 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 33:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::decl:
-                            state.shiftNT(32);
-                            break;
-                        case NonterminalType::decllist:
-                            state.shiftNT(62);
-                            break;
                         default:
                             state.fail();
                     }
@@ -1805,14 +2091,11 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 35:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
+                        case NonterminalType::decllist:
+                            state.shiftNT(68);
                             break;
-                        case NonterminalType::expratom:
-                            state.shiftNT(52);
-                            break;
-                        case NonterminalType::fn:
-                            state.shiftNT(24);
+                        case NonterminalType::decl:
+                            state.shiftNT(57);
                             break;
                         default:
                             state.fail();
@@ -1826,26 +2109,29 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 37:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::expratom:
-                            state.shiftNT(44);
+                        case NonterminalType::fn:
+                            state.shiftNT(32);
+                            break;
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(66);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
                             break;
                         case NonterminalType::lvalue:
-                            state.shiftNT(8);
-                            break;
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(20);
-                            break;
-                        case NonterminalType::fn:
-                            state.shiftNT(24);
-                            break;
-                        case NonterminalType::exprcat1:
-                            state.shiftNT(39);
+                            state.shiftNT(56);
                             break;
                         case NonterminalType::expr:
                             state.shiftNT(10);
                             break;
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(50);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
                             break;
                         default:
                             state.fail();
@@ -1853,6 +2139,36 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 38:
                     switch (state.cur.getNonterminal()) {
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(66);
+                            break;
+                        case NonterminalType::expr:
+                            state.shiftNT(65);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(50);
+                            break;
+                        case NonterminalType::fn:
+                            state.shiftNT(32);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
+                            break;
+                        case NonterminalType::statement:
+                            state.shiftNT(31);
+                            break;
+                        case NonterminalType::lvalue:
+                            state.shiftNT(56);
+                            break;
+                        case NonterminalType::proc:
+                            state.shiftNT(19);
+                            break;
                         default:
                             state.fail();
                     }
@@ -1865,11 +2181,33 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 40:
                     switch (state.cur.getNonterminal()) {
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::fn:
+                            state.shiftNT(32);
+                            break;
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(6);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(26);
+                            break;
                         default:
                             state.fail();
                     }
                     break;
                 case 41:
+                    switch (state.cur.getNonterminal()) {
+                        default:
+                            state.fail();
+                    }
                     break;
                 case 42:
                     switch (state.cur.getNonterminal()) {
@@ -1879,33 +2217,6 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 43:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::exprcat1:
-                            state.shiftNT(39);
-                            break;
-                        case NonterminalType::statement:
-                            state.shiftNT(43);
-                            break;
-                        case NonterminalType::fn:
-                            state.shiftNT(24);
-                            break;
-                        case NonterminalType::lvalue:
-                            state.shiftNT(31);
-                            break;
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(20);
-                            break;
-                        case NonterminalType::expr:
-                            state.shiftNT(25);
-                            break;
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
-                            break;
-                        case NonterminalType::proc:
-                            state.shiftNT(47);
-                            break;
-                        case NonterminalType::expratom:
-                            state.shiftNT(44);
-                            break;
                         default:
                             state.fail();
                     }
@@ -1918,6 +2229,36 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 45:
                     switch (state.cur.getNonterminal()) {
+                        case NonterminalType::proc:
+                            state.shiftNT(61);
+                            break;
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(66);
+                            break;
+                        case NonterminalType::expr:
+                            state.shiftNT(65);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(50);
+                            break;
+                        case NonterminalType::fn:
+                            state.shiftNT(32);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
+                            break;
+                        case NonterminalType::statement:
+                            state.shiftNT(31);
+                            break;
+                        case NonterminalType::lvalue:
+                            state.shiftNT(56);
+                            break;
                         default:
                             state.fail();
                     }
@@ -1936,18 +2277,6 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 48:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::expratom:
-                            state.shiftNT(44);
-                            break;
-                        case NonterminalType::fn:
-                            state.shiftNT(24);
-                            break;
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
-                            break;
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(11);
-                            break;
                         default:
                             state.fail();
                     }
@@ -1966,42 +2295,17 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 51:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::exprcat1:
-                            state.shiftNT(39);
+                        case NonterminalType::decl:
+                            state.shiftNT(57);
                             break;
-                        case NonterminalType::statement:
-                            state.shiftNT(43);
-                            break;
-                        case NonterminalType::fn:
-                            state.shiftNT(24);
-                            break;
-                        case NonterminalType::lvalue:
-                            state.shiftNT(31);
-                            break;
-                        case NonterminalType::proc:
-                            state.shiftNT(59);
-                            break;
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(20);
-                            break;
-                        case NonterminalType::expr:
-                            state.shiftNT(25);
-                            break;
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
-                            break;
-                        case NonterminalType::expratom:
-                            state.shiftNT(44);
+                        case NonterminalType::decllist:
+                            state.shiftNT(68);
                             break;
                         default:
                             state.fail();
                     }
                     break;
                 case 52:
-                    switch (state.cur.getNonterminal()) {
-                        default:
-                            state.fail();
-                    }
                     break;
                 case 53:
                     switch (state.cur.getNonterminal()) {
@@ -2023,57 +2327,33 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 56:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
-                            break;
-                        case NonterminalType::expratom:
-                            state.shiftNT(44);
-                            break;
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(63);
-                            break;
-                        case NonterminalType::fn:
-                            state.shiftNT(24);
-                            break;
                         default:
                             state.fail();
                     }
                     break;
                 case 57:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::exprcat1:
-                            state.shiftNT(39);
-                            break;
-                        case NonterminalType::statement:
-                            state.shiftNT(43);
-                            break;
-                        case NonterminalType::fn:
-                            state.shiftNT(24);
-                            break;
-                        case NonterminalType::expratom:
-                            state.shiftNT(34);
-                            break;
-                        case NonterminalType::lvalue:
-                            state.shiftNT(31);
-                            break;
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(20);
-                            break;
-                        case NonterminalType::expr:
-                            state.shiftNT(25);
-                            break;
-                        case NonterminalType::proc:
-                            state.shiftNT(55);
-                            break;
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
-                            break;
                         default:
                             state.fail();
                     }
                     break;
                 case 58:
                     switch (state.cur.getNonterminal()) {
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(24);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(18);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::fn:
+                            state.shiftNT(67);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
                         default:
                             state.fail();
                     }
@@ -2086,93 +2366,225 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     break;
                 case 60:
                     switch (state.cur.getNonterminal()) {
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(24);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(49);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::fn:
+                            state.shiftNT(67);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
                         default:
                             state.fail();
                     }
                     break;
                 case 61:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(20);
-                            break;
-                        case NonterminalType::expratom:
-                            state.shiftNT(44);
-                            break;
-                        case NonterminalType::exprcat1:
-                            state.shiftNT(42);
-                            break;
-                        case NonterminalType::fn:
-                            state.shiftNT(22);
-                            break;
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
-                            break;
                         default:
                             state.fail();
                     }
                     break;
                 case 62:
                     switch (state.cur.getNonterminal()) {
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(26);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::fn:
+                            state.shiftNT(67);
+                            break;
+                        case NonterminalType::expr:
+                            state.shiftNT(25);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
+                        case NonterminalType::lvalue:
+                            state.shiftNT(56);
+                            break;
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(50);
+                            break;
                         default:
                             state.fail();
                     }
                     break;
                 case 63:
                     switch (state.cur.getNonterminal()) {
+                        case NonterminalType::fn:
+                            state.shiftNT(67);
+                            break;
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(26);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::expr:
+                            state.shiftNT(12);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
+                        case NonterminalType::lvalue:
+                            state.shiftNT(56);
+                            break;
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(50);
+                            break;
                         default:
                             state.fail();
                     }
                     break;
                 case 64:
                     switch (state.cur.getNonterminal()) {
+                        case NonterminalType::fn:
+                            state.shiftNT(67);
+                            break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(26);
+                            break;
+                        case NonterminalType::expr:
+                            state.shiftNT(13);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
+                        case NonterminalType::lvalue:
+                            state.shiftNT(4);
+                            break;
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(50);
+                            break;
                         default:
                             state.fail();
                     }
                     break;
                 case 65:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::lvalue:
-                            state.shiftNT(31);
-                            break;
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(20);
-                            break;
-                        case NonterminalType::fn:
-                            state.shiftNT(24);
-                            break;
-                        case NonterminalType::exprcat1:
-                            state.shiftNT(39);
-                            break;
-                        case NonterminalType::expratom:
-                            state.shiftNT(44);
-                            break;
-                        case NonterminalType::expr:
-                            state.shiftNT(14);
-                            break;
-                        case NonterminalType::fncall:
-                            state.shiftNT(23);
-                            break;
                         default:
                             state.fail();
                     }
                     break;
                 case 66:
                     switch (state.cur.getNonterminal()) {
-                        case NonterminalType::exprcat2:
-                            state.shiftNT(20);
-                            break;
-                        case NonterminalType::expratom:
-                            state.shiftNT(15);
-                            break;
-                        case NonterminalType::exprcat1:
-                            state.shiftNT(46);
-                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 67:
+                    switch (state.cur.getNonterminal()) {
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 68:
+                    switch (state.cur.getNonterminal()) {
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 69:
+                    switch (state.cur.getNonterminal()) {
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 70:
+                    switch (state.cur.getNonterminal()) {
                         case NonterminalType::fn:
-                            state.shiftNT(22);
+                            state.shiftNT(67);
                             break;
                         case NonterminalType::fncall:
-                            state.shiftNT(23);
+                            state.shiftNT(59);
                             break;
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(14);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 71:
+                    switch (state.cur.getNonterminal()) {
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 72:
+                    switch (state.cur.getNonterminal()) {
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 73:
+                    switch (state.cur.getNonterminal()) {
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 74:
+                    switch (state.cur.getNonterminal()) {
+                        case NonterminalType::decl:
+                            state.shiftNT(57);
+                            break;
+                        case NonterminalType::decllist:
+                            state.shiftNT(15);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 75:
+                    switch (state.cur.getNonterminal()) {
+                        case NonterminalType::expratom:
+                            state.shiftNT(39);
+                            break;
+                        case NonterminalType::exprcat2:
+                            state.shiftNT(27);
+                            break;
+                        case NonterminalType::exprcat1:
+                            state.shiftNT(69);
+                            break;
+                        case NonterminalType::exprcat3:
+                            state.shiftNT(24);
+                            break;
+                        case NonterminalType::fncall:
+                            state.shiftNT(59);
+                            break;
+                        case NonterminalType::fn:
+                            state.shiftNT(32);
+                            break;
+                        default:
+                            state.fail();
+                    }
+                    break;
+                case 76:
+                    switch (state.cur.getNonterminal()) {
                         default:
                             state.fail();
                     }

@@ -52,6 +52,10 @@ int main(int argc, char **argv) {
         ++line_number;
     }
 
+    for (auto &tok : tokens) {
+        cerr << tok.type.str() << endl;
+    }
+
     LRNode *tree;
     int result = parse(tokens, tree);
     if (result) {

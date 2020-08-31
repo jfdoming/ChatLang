@@ -14,6 +14,10 @@ int interpret(ASTNode *ast) {
     }
 
     Environment env{ast};
+
+    // Hard-coded library functions.
+    
+
     Value *result = ast->interpret(env);
     if (result && *result) {
         cout << result->str() << endl;

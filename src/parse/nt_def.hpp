@@ -8,8 +8,9 @@ X(lvalue) \
 X(exprcat1) \
 X(decllist) \
 X(fn) \
+X(expr) \
+X(proc) \
 X(decl) \
 X(fncall) \
-X(statement) \
-X(proc) \
-X(expr)
+X(exprcat3) \
+X(statement)

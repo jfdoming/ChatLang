@@ -27,29 +27,38 @@ Environment::~Environment() {
     }
 }
 
-int Environment::invoke(const string &name, Value *&value) {
+int Environment::invoke(const string &name, Value *params, Value *&value) {
     if (!frames.size()) {
         cerr << "Uh-oh! An internal error occurred while interpreting your program. This is probably a bug..." << endl;
         return -1;
     }
 
-    Value *result = nullptr;
+    Value *fn = nullptr;
     int retval = get(name, value);
-    if (retval || !result) {
+    if (retval || !fn) {
         return retval ? retval : -1;
     }
-    if (value->getType() != ValueType::FUNCTION) {
+    if (fn->getType() != ValueType::FUNCTION) {
         cerr << "Name \"" << name << "\" is not callable." << endl;
     }
 
-    frames.emplace();
+    return invoke(fn, params, value);
+}
+
+int Environment::invoke(Value *fn, Value *params, Value *&value) {
     frameIDs.emplace(value->getFn());
-    value = result->getFn()->interpret(*this, 1);
-    frameIDs.pop();
+    frames.emplace();
+
+    // TODO emplace parameters here
+    // Note: this requires tuple support first!
+
+    value = fn->getFn()->interpret(*this, 1);
+
     for (auto &val : frames.top()) {
         delete val.second;
     }
     frames.pop();
+    frameIDs.pop();
 
     return 0;
 }

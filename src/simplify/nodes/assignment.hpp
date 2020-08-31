@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/simplify/ast_node.hpp"
+#include "../ast_node.hpp"
 
 struct AssignmentNode : public ASTNode {
     virtual Value *interpret(Environment &env, short caller = 0) const {
@@ -23,4 +23,4 @@ struct AssignmentNode : public ASTNode {
         
         return result;
     }
-}:
+};

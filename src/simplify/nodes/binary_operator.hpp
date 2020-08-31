@@ -23,6 +23,18 @@ struct BinaryOperatorNode : public ASTNode {
             case TokenType::MINUS:
                 result = *leftValue - *rightValue;
                 break;
+            case TokenType::STAR:
+                result = *leftValue * *rightValue;
+                break;
+            case TokenType::SLASH:
+                result = *leftValue / *rightValue;
+                break;
+            case TokenType::STARSTAR:
+                result = *leftValue ^ *rightValue;
+                break;
+            case TokenType::PERCENT:
+                result = *leftValue % *rightValue;
+                break;
             default:
                 cerr << "Uh-oh! An internal error occurred while interpreting your program. This is probably a bug..." << endl;
                 delete leftValue;
