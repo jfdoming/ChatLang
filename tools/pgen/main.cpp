@@ -149,7 +149,7 @@ struct ReduceAction : public Action {
             return oss.str();
         }
     private:
-        string name; // TODO change to private
+        string name;
         vector<string> rule;
         size_t ruleIndex;
 };
@@ -478,16 +478,13 @@ using namespace std;
 
 int parse(const std::vector<Token> &tokens, LRNode *& tree) {)" << endl;
     cout << "    ParseState state{" << initialState << ", NonterminalType::" << grammar.start << "};" << endl;
-    cout << R"(    bool eofHit = false;
-    while (!state.done) {
+    cout << R"(    while (!state.done) {
         bool eof = false;
         if (!state.peeked) {
             if (state.curPos >= tokens.size()) {
-                if (eofHit) {
-                    eof = true;
-                } else {
+                if (!eof) {
                     state.cur = {TokenType::E0F, ""};
-                    eofHit = true;
+                    eof = true;
                 }
             } else {
                 state.cur = {tokens[state.curPos].type, tokens[state.curPos].lexeme};
@@ -521,12 +518,9 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {)" << endl;
                 cout << "                    }" << endl;
             } else {
                 // Assume we have an accepting state!
-                cout << R"action(                if (state.cur.isTerminal()) {
-                    if (eof) {
-                        state.success = true;
-                    }
-                    state.done = true;
-                })action" << endl;
+                cout << R"action(                    if (state.cur.isTerminal()) {
+                        state.reduce()action" << grammar.rules[grammar.start][0].size() << ", NonterminalType::" << grammar.start << R"action();
+                    })action" << endl;
             }
             cout << "                    break;" << endl;
         }
@@ -565,13 +559,7 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {)" << endl;
         }
     }
 
-    if (!state.success) {
-        return -1;
-    }
-    
-    state.storeResult(tree);
-
-    return 0;
+    return state.storeResult(tree);
 })" << endl;
 
     return os;

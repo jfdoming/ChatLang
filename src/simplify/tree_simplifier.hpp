@@ -1,3 +1,6 @@
 #pragma once
 
-void simplify(LRNode *tree, ASTNode *&output);
+#include "../parse/lr_node.hpp"
+#include "./ast_node.hpp"
+
+void simplify(LRNode *tree, ASTNode *&ast);

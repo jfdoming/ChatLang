@@ -19,8 +19,8 @@ class NonterminalType {
         operator Type() {
             return type;
         }
-        std::string str() {
-            return type_strings[type];
+        std::string str() const {
+            return type_strings.at(type);
         }
 
     private:

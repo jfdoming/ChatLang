@@ -23,6 +23,7 @@ struct LRNode {
         string getLexeme() const;
         bool isState() const;
         bool isTerminal() const;
+        vector<LRNode *> getChildren() const;
 
         friend ostream &operator<<(ostream &, const LRNode &);
     private:

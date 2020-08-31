@@ -18,7 +18,7 @@ CFLAGS   := -std=c++17 -Wall -g -MMD
 
 SOURCES := $(wildcard $(SRCDIR)**/*.$(SFILES))
 OBJECTS := $(patsubst $(SRCDIR)%$(SFILES), $(OBJDIR)%$(OFILES), $(SOURCES)) $(OBJDIR)main.o
-DEPENDENCIES := $(patsubst $(SRCDIR)%$(SFILES), $(OBJDIR)%$(DFILES), $(SOURCES)) $(OBJDIR)main.d
+DEPENDENCIES := $(wildcard $(OBJDIR)**/*.$(DFILES))
 
 ALLFILES := $(SOURCES) main.cpp
 

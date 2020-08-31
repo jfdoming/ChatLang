@@ -113,6 +113,7 @@ unordered_map<string, function<string(char)>> TRANSITIONS = {
 
 unordered_map<char, string> SINGLE_CHAR_STATES = {
     {'+', ERROR_STATE},
+    {'-', ERROR_STATE},
     {'*', ERROR_STATE},
     {'/', ERROR_STATE},
     {'%', ERROR_STATE},

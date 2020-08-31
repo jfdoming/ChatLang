@@ -36,7 +36,8 @@ struct ParseState {
             for (size_t i = 0; i < count; ++i) {
                 if (nodeStack.size() < 2) {
                     cerr << "ERROR at " << curPos << endl;
-                    break;
+                    done = true;
+                    return;
                 }
                 delete nodeStack.top(); // Delete state node.
                 nodeStack.pop(); // Pop deleted state.
@@ -65,8 +66,23 @@ struct ParseState {
             cerr << "Misplaced token " << cur.getTerminal().str() << " with error code " << state << endl;
             done = true;
         }
-        void storeResult(LRNode *&tree) {
+
+        int storeResult(LRNode *&tree) {
             tree = nodeStack.top();
+            nodeStack.pop();
+
+            while (!nodeStack.empty()) {
+                delete nodeStack.top();
+                nodeStack.pop();
+            }
+
+            if (!success) {
+                delete tree;
+                tree = nullptr;
+                return -1;
+            }
+            
+            return 0;
         }
     
     private:

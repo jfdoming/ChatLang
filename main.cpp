@@ -7,6 +7,11 @@
 #include "src/parse/lr_node.hpp"
 #include "src/parse/parser.hpp"
 
+#include "src/simplify/ast_node.hpp"
+#include "src/simplify/tree_simplifier.hpp"
+
+#include "src/interpret/interpreter.hpp"
+
 using namespace std;
 
 int main(int argc, char **argv) {
@@ -48,5 +53,22 @@ int main(int argc, char **argv) {
     }
 
     LRNode *tree;
-    parse(tokens, tree);
+    int result = parse(tokens, tree);
+    if (result) {
+        return result;
+    }
+
+    ASTNode *ast;
+    simplify(tree, ast);
+    delete tree;
+
+    result = interpret(ast);
+    if (result) {
+        delete ast;
+        return result;
+    }
+    
+    delete ast;
+
+    return 0;
 }

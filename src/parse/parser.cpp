@@ -9,16 +9,13 @@ using namespace std;
 
 int parse(const std::vector<Token> &tokens, LRNode *& tree) {
     ParseState state{36, NonterminalType::start};
-    bool eofHit = false;
     while (!state.done) {
         bool eof = false;
         if (!state.peeked) {
             if (state.curPos >= tokens.size()) {
-                if (eofHit) {
-                    eof = true;
-                } else {
+                if (!eof) {
                     state.cur = {TokenType::E0F, ""};
-                    eofHit = true;
+                    eof = true;
                 }
             } else {
                 state.cur = {tokens[state.curPos].type, tokens[state.curPos].lexeme};
@@ -903,12 +900,9 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
                     }
                     break;
                 case 41:
-                if (state.cur.isTerminal()) {
-                    if (eof) {
-                        state.success = true;
+                    if (state.cur.isTerminal()) {
+                        state.reduce(3, NonterminalType::start);
                     }
-                    state.done = true;
-                }
                     break;
                 case 42:
                     switch (state.cur.getTerminal()) {
@@ -2189,11 +2183,5 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {
         }
     }
 
-    if (!state.success) {
-        return -1;
-    }
-    
-    state.storeResult(tree);
-
-    return 0;
+    return state.storeResult(tree);
 }
