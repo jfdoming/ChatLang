@@ -18,7 +18,9 @@ int interpret(ASTNode *ast) {
 
     // Hard-coded library functions.
     auto *print = new PrintNode;
+    auto *println = new PrintNode{true};
     env.setEffect("print", print->interpret(env));
+    env.setEffect("println", println->interpret(env));
 
     Value *result = ast->interpret(env);
     if (result) {

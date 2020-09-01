@@ -21,6 +21,7 @@ struct StringNode : public ASTNode {
         // This is bad, but I don't have time...
         replaceString(this->lexeme, "\\n", "\n");
         replaceString(this->lexeme, "\\t", "\t");
+        replaceString(this->lexeme, "\\\"", "\"");
     }
 
     virtual Value *interpret(Environment &env, short caller = 0) const {

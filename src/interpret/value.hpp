@@ -47,6 +47,16 @@ class Value {
             return autoDelete;
         }
 
+        bool isFalsy() const {
+            if (type == ValueType::NUMBER) {
+                return num == 0;
+            }
+            if (type == ValueType::STRING) {
+                return strsym.size() == 0;
+            }
+            return false;
+        }
+
         operator bool() const {
             return type != ValueType::ERROR;
         }

@@ -16,16 +16,11 @@
 #include "./nodes/function.hpp"
 #include "./nodes/function_call.hpp"
 #include "./nodes/decllist.hpp"
+#include "./nodes/exprpar.hpp"
 
 using namespace std;
 
 ASTNode *convertToAST(LRNode *cur);
-
-// TODO list:
-// 5. Add variable support in expressions.
-// 4. Fix unary - so that it has lower precedence (basic program should output -1).
-// 6. Add boolean support.
-// 7. Fix Valgrind errors in sample.lang.
 
 void populateChildren(LRNode *cur, ASTNode *ast) {
     for (auto &node: cur->getChildren()) {
@@ -109,6 +104,42 @@ ASTNode *convertExprcat3ToAST(LRNode *cur, vector<ASTNode *> *tupleNodes = nullp
     }
 }
 
+ASTNode *convertExprparToAST(LRNode *cur, vector<ASTNode *> *tupleNodes = nullptr) {
+    auto &&children = cur->getChildren();
+    if (children.size() > 1) {
+        vector<ASTNode *> nodeList;
+        bool topLevel = false;
+        if (!tupleNodes) {
+            tupleNodes = &nodeList;
+            topLevel = true;
+        }
+        auto iter = children.begin();
+        convertExprparToAST(*iter, tupleNodes);
+        ++iter;
+        for (; iter != children.end(); ++iter) {
+            tupleNodes->emplace_back(convertToAST(*iter));
+        }
+
+        if (!topLevel) {
+            return nullptr;
+        }
+        ASTNode *exprpar = new ExprParNode;
+        for (auto &child : *tupleNodes) {
+            exprpar->addChild(child);
+        }
+        return exprpar;
+    } else if (tupleNodes) {
+        for (auto &child : children) {
+            tupleNodes->emplace_back(convertToAST(child));
+        }
+        return nullptr;
+    } else {
+        ASTNode *temp = new ExprParNode;
+        populateChildren(cur, temp);
+        return temp;
+    }
+}
+
 ASTNode *convertExpratomToAST(LRNode *cur) {
     auto &&children = cur->getChildren();
     if (children[0]->isTerminal()) {
@@ -170,6 +201,9 @@ ASTNode *convertToAST(LRNode *cur) {
                 break;
             case NonterminalType::decllist:
                 temp = convertDecllistToAST(cur);
+                break;
+            case NonterminalType::exprpar:
+                temp = convertExprparToAST(cur);
                 break;
             default:
                 temp = new ASTNode{cur->getNonterminal()};

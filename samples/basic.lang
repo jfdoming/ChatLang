@@ -1,5 +1,4 @@
-3
-4*(3+5)
-2**4+5*3
-# TODO fix unary operator precedence
--1**8
+println(3)
+println(4*(3+5))
+println(2**4+5*3)
+println((-1)**8)
