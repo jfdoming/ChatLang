@@ -1,15 +1,16 @@
 // This file was automatically generated; please do not modify it.
 
 #define NT_TYPES \
-X(exprcat2) \
-X(start) \
-X(expratom) \
-X(lvalue) \
-X(exprcat1) \
-X(decllist) \
-X(fn) \
-X(decl) \
-X(fncall) \
-X(statement) \
+X(expr) \
 X(proc) \
-X(expr)
+X(exprparopt) \
+X(exprpar) \
+X(statement) \
+X(fncall) \
+X(fn) \
+X(exprcat3) \
+X(decllist) \
+X(exprcat1) \
+X(start) \
+X(exprcat2) \
+X(expratom)
