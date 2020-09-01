@@ -1,0 +1,37 @@
+{
+    print("\"Hello, world!\"\n");
+
+    # alskjd p8&#)(*@&$:FUI:XILVJ)
+    (1) ({
+        print("if statement!\n")
+    }())
+    (0) ({
+        print("failing if statement!\n")
+    }())
+}()
+
+
+# Define a function like this:
+main = [args] {
+
+}
+
+# Call a function like this:
+main(1, 2)
+
+# Or like this:
+[args] {} (1, 2)
+
+a = {
+    42 # Functions return the last value seen
+}()
+
+# If you don't want this behaviour, do this:
+b = [] {
+    ((42 + 13 ** 9) % 25) / 27
+} # b is now a function
+
+println(b()) # Prints 0.555555...
+
+# The last line is the return value.
+b()

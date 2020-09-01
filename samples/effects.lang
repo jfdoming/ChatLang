@@ -1,0 +1,30 @@
+test <- {
+    print("Hello, world!\n")
+}
+
+test()
+
+test2 = {
+    test()
+}
+
+test2()
+
+test <- {
+    print("!dlrow ,olleH\n")
+}
+
+test()
+test2()
+
+test3 = [] {
+    test4 = {
+        test()
+    }
+    
+    test <- {
+        print("Hello, world!\n")
+    }
+    test4()
+}
+test3()
