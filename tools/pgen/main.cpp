@@ -149,7 +149,7 @@ struct ReduceAction : public Action {
             return oss.str();
         }
     private:
-        string name; // TODO change to private
+        string name;
         vector<string> rule;
         size_t ruleIndex;
 };
@@ -163,7 +163,7 @@ class Grammar : public IAutomatonResult {
         unordered_map<string, vector<vector<string>>> rules;
         unordered_map<string, unordered_set<string>> follow;
         unordered_set<Item, hash_item> initialState;
-        vector<unordered_map<string, Action *>> transitions;
+        vector<unordered_map<string, unordered_set<string>>> transitions;
 
         bool auxTablesComputed = false;
 
@@ -353,8 +353,19 @@ class Grammar : public IAutomatonResult {
             // Eliminate the map from sets to maps since it's unnecessarily complex.
             size_t stateIndex = 0;
             for (auto &state : seenStates) {
-                transitions.emplace_back(transitionTable[state]);
                 stateSetToIndex[state] = stateIndex++;
+            }
+            for (auto &state : seenStates) {
+                unordered_map<string, unordered_set<string>> tempTransition;
+                for (auto &transition: transitionTable[state]) {
+                    if (nonterminals.find(transition.first) != nonterminals.end()) {
+                        tempTransition[transition.second->str(true)].insert(transition.first);
+                    }
+                    if (terminals.find(transition.first) != terminals.end()) {
+                        tempTransition[transition.second->str()].insert(transition.first);
+                    }
+                }
+                transitions.emplace_back(tempTransition);
             }
 
             return true;
@@ -416,7 +427,7 @@ class Grammar : public IAutomatonResult {
         ~Grammar() {
             for (auto &stateEntry : transitions) {
                 for (auto &transitionEntry : stateEntry) {
-                    delete transitionEntry.second;
+                    //delete transitionEntry.first;
                 }
             }
         }
@@ -465,21 +476,18 @@ ostream &operator <<(ostream &os, Grammar &grammar) {
 
 using namespace std;
 
-int parse(const std::vector<Token> &tokens, LRNode *& tree) {)" << endl;
-    cout << "    ParseState state{" << initialState << ", NonterminalType::" << grammar.start << "};" << endl;
-    cout << R"(    bool eofHit = false;
-    while (!state.done) {
+int parse(const std::vector<Token> &tokens, std::vector<std::string> *lines, LRNode *& tree) {)" << endl;
+    cout << "    ParseState state{" << initialState << ", NonterminalType::" << grammar.start << ", lines};" << endl;
+    cout << R"(    while (!state.done) {
         bool eof = false;
         if (!state.peeked) {
             if (state.curPos >= tokens.size()) {
-                if (eofHit) {
+                if (!eof) {
+                    state.cur = Token{TokenType::E0F, "", 0, 0};
                     eof = true;
-                } else {
-                    state.cur = {TokenType::E0F, ""};
-                    eofHit = true;
                 }
             } else {
-                state.cur = {tokens[state.curPos].type, tokens[state.curPos].lexeme};
+                state.cur = tokens[state.curPos];
                 ++state.curPos;
             }
         }
@@ -492,26 +500,27 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {)" << endl;
         for (size_t state = 0; state < grammar.transitions.size(); ++state) {
             cout << "                case " << state << ":" << endl;
             if (grammar.transitions[state].size()) {
-                cout << "                    switch (state.cur.getTerminal()) {" << endl;
+                cout << "                    switch (state.cur.getTerminal().type) {" << endl;
                 for (auto &symbolEntry : grammar.transitions[state]) {
-                    if (grammar.terminals.find(symbolEntry.first) == grammar.terminals.end()) {
-                        continue;
+                    bool writtenCase = false;
+                    for (auto &s: symbolEntry.second) {
+                        if (grammar.terminals.find(s) != grammar.terminals.end()) {
+                            writtenCase = true;
+                            cout << "                        case TokenType::" << s << ":" << endl;
+                        }
                     }
-                    cout << "                        case TokenType::" << symbolEntry.first << ":" << endl;
-                    cout << symbolEntry.second->str();
-                    cout << "                            break;" << endl;
+                    if (writtenCase) {
+                        cout << symbolEntry.first << "                            break;" << endl;
+                    }
                 }
                 cout << "                        default:" << endl;
                 cout << "                            state.fail();" << endl;
                 cout << "                    }" << endl;
             } else {
                 // Assume we have an accepting state!
-                cout << R"action(                if (state.cur.isTerminal()) {
-                    if (eof) {
-                        state.success = true;
-                    }
-                    state.done = true;
-                })action" << endl;
+                cout << R"action(                    if (state.cur.isTerminal()) {
+                        state.reduce()action" << grammar.rules[grammar.start][0].size() << ", NonterminalType::" << grammar.start << R"action();
+                    })action" << endl;
             }
             cout << "                    break;" << endl;
         }
@@ -519,40 +528,38 @@ int parse(const std::vector<Token> &tokens, LRNode *& tree) {)" << endl;
         cout << "            }" << endl;
         cout << "        } else {" << endl;
         cout << "            switch (state.state) {" << endl;
-
+        
         // Nonterminals
         for (size_t state = 0; state < grammar.transitions.size(); ++state) {
             cout << "                case " << state << ":" << endl;
             if (grammar.transitions[state].size()) {
                 cout << "                    switch (state.cur.getNonterminal()) {" << endl;
                 for (auto &symbolEntry : grammar.transitions[state]) {
-                    if (grammar.nonterminals.find(symbolEntry.first) == grammar.nonterminals.end()) {
-                        continue;
+                    bool writtenCase = false;
+                    for (auto &t: symbolEntry.second) {
+                        if (grammar.nonterminals.find(t) != grammar.nonterminals.end()) {
+                            writtenCase = true;
+                            cout << "                        case NonterminalType::" << t << ":" << endl;
+                        }
                     }
-                    cout << "                        case NonterminalType::" << symbolEntry.first << ":" << endl;
-                    cout << symbolEntry.second->str(true);
-                    cout << "                            break;" << endl;
+                    if (writtenCase) {
+                        cout << symbolEntry.first << "                            break;" << endl;
+                    }
                 }
                 cout << "                        default:" << endl;
-                cout << "                            state.error();" << endl;
+                cout << "                            state.fail();" << endl;
                 cout << "                    }" << endl;
             }
             cout << "                    break;" << endl;
         }
-
+        
         cout << R"(                default:
                     state.error();
             }
         }
     }
 
-    if (!state.success) {
-        return -1;
-    }
-    
-    state.storeResult(tree);
-
-    return 0;
+    return state.storeResult(tree);
 })" << endl;
 
     return os;
