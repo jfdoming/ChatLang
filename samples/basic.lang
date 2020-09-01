@@ -1,33 +1,4 @@
-{
-    print("\"Hello, world!\"");
-
-    # alskjd p8&#)(*@&$:FUI:XILVJ)
-    true {
-        print <- {}
-    }
-}
-
-
-# Define a function like this:
-main = [args] {
-
-}
-
-# Call a function like this:
-main(1, 2)
-
-# Or like this:
-[args] {} (1, 2)
-
-# Functions with no arguments are auto-invoked:
-a = {
-    42 # Functions return the last value seen
-    # Could optionally write `return 42` as well
-}
-
-# If you don't want this behaviour, do this:
-b = [] {
-    42
-} # b is now a function
-
-print(b()) # Prints 42
+println(3)
+println(4*(3+5))
+println(2**4+5*3)
+println((-1)**8)
