@@ -3,10 +3,15 @@ Welcome to ChatLang! This is a language entirely created by two undergraduate un
 
 This document is a work-in-progress, so please feel free to reach out for any questions in the interim.
 
+## Quickstart
+Just click the run button, or run `./lang <filename>` where `<filename>` is a name of a file to execute. For example, `./lang samples/main.lang` is the file set to run by default. You can also get a REPL by running `./lang` by itself, though currently you have to send the `EOF` character (`Ctrl-D` on Windows) to actually evaluate your code.
+
 ## Challenges
 We decided to tackle this project without any libraries other than the C++ standard library! This meant building a custom tokenizer, grammar format, parser generator and interpreter. This was a huge adventure reliving past ~~trauma~~ experiences in our compilers course, and was an even bigger undertaking because this time, we were embarking on our language creation journey without any starter code.
 
 The biggest challenge we ran into was that it turns out rolling your own language framework takes a lot of effort! This left us with not much time to create the actual language. However, we persevered and the language you see is the result!
+
+Our choice of C++ as a language for the interpreter also resulted in some challenges: memory leaks, use-after-frees, and more. Luckily, we were able to figure these out with the help of `valgrind` and `gdb`!
 
 ## Next steps for ChatLang
 
