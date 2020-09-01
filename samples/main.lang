@@ -1,3 +1,5 @@
 main = [args] {
     print("Hello, world!\n")
 }
+
+main(0)

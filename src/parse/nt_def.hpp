@@ -9,7 +9,6 @@ X(statement) \
 X(start) \
 X(exprcat2) \
 X(expratom) \
-X(lvalue) \
 X(fn) \
 X(decl) \
 X(fncall) \

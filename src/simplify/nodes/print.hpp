@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "../ast_node.hpp"
 
 struct PrintNode : public ASTNode {
@@ -7,13 +9,14 @@ struct PrintNode : public ASTNode {
     virtual Value *interpret(Environment &env, short caller = 0) const {
         if (!caller) {
             return new Value{this, {"arg"}};
+            return new Value{this, {}};
         }
         Value *value;
         int retval = env.get("arg", value);
         if (retval || !*value) {
-            cout << endl;
+            std::cout << std::endl;
         } else {
-            cout << value.str() << endl;
+            std::cout << value->str() << std::flush;
         }
         return new Value{0};
     }

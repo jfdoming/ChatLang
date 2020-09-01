@@ -29,6 +29,10 @@ TokenType ASTNode::getTerminal() const {
     return terminal;
 }
 
+NonterminalType ASTNode::getNonterminal() const {
+    return nonterminal;
+}
+
 bool ASTNode::isTerminal() const { return holdsTerminal; }
 
 // Default behaviour.
@@ -53,12 +57,13 @@ Value *ASTNode::interpret(Environment &env, short) const {
 
 ostream &operator<<(ostream &out, const ASTNode &el) {
     if (el.isTerminal()) {
-        cerr << el.terminal.str() << endl;
+        out << el.terminal.str() << endl;
     } else {
-        cerr << el.nonterminal.str() << endl;
+        out << el.nonterminal.str() << endl;
     }
     for (auto *child : el.children) {
         out << *child;
     }
+    out << "--" << endl;
     return out;
 }

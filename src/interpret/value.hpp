@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <string>
 #include <vector>
 #include <cinttypes>
@@ -9,21 +8,31 @@
 class ASTNode;
 
 enum class ValueType {
-    NUMBER, STRING, SYMBOL, FUNCTION, ERROR
+    NUMBER, STRING, SYMBOL, FUNCTION, TUPLE, ERROR
 };
 
 class Value {
         double num;
         std::string strsym;
-        ASTNode *fn;
+        const ASTNode *fn;
         std::vector<std::string> fnParams;
+        std::vector<Value *> values;
         ValueType type;
         bool autoDelete = false;
     public:
         Value() : type{ValueType::ERROR} {}
         Value(double num) : num{num}, type{ValueType::NUMBER} {}
         Value(std::string strsym, bool sym = false) : strsym{strsym}, type{sym ? ValueType::SYMBOL : ValueType::STRING} {}
-        Value(ASTNode *fn, const std::vector<std::string> &params) : fn{fn}, fnParams{params}, type{ValueType::FUNCTION} {}
+        Value(const ASTNode *fn, const std::vector<std::string> &params) : fn{fn}, fnParams{params}, type{ValueType::FUNCTION} {}
+        Value(const std::vector<Value *> &values) : values{values}, type{ValueType::TUPLE} {}
+
+        ~Value() {
+            for (auto *value : values) {
+                if (!value->autoDelete) {
+                    delete value;
+                }
+            }
+        }
 
         ValueType getType() {
             return type;
@@ -46,9 +55,14 @@ class Value {
                 return std::to_string(num);
             }
             if (type == ValueType::FUNCTION) {
-                return std::to_string(reinterpret_cast<uintptr_t
-  
->(fn));
+                return std::to_string(reinterpret_cast<uintptr_t>(fn));
+            }
+            if (type == ValueType::TUPLE) {
+                std::string output;
+                for (auto *value : values) {
+                    output += value->str() + ",";
+                }
+                return output;
             }
             return strsym;
         }
@@ -106,11 +120,15 @@ class Value {
             return new Value;
         }
 
-        ASTNode *getFn() {
+        const ASTNode *getFn() {
             return fn;
         }
 
-        std::vector<std::string> getParams() {
+        std::vector<std::string>& getParams() {
             return fnParams;
+        }
+
+        std::vector<Value *>& getValues() {
+            return values;
         }
 };

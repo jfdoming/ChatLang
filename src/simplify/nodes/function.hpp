@@ -18,6 +18,10 @@ struct FunctionNode : public ASTNode {
             if (caller) {
                 return procChild->interpret(env);
             }
+            /*Value *args = nullptr;
+            if (children.size() == 6) {
+                args = children[1]->interpret(env);
+            }*/
             return new Value{procChild, {}};
         }
 

@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "./environment.hpp"
+#include "../simplify/nodes/print.hpp"
 
 using namespace std;
 
@@ -16,7 +17,8 @@ int interpret(ASTNode *ast) {
     Environment env{ast};
 
     // Hard-coded library functions.
-    
+    auto *print = new PrintNode;
+    env.setEffect("print", print->interpret(env));
 
     Value *result = ast->interpret(env);
     if (result) {

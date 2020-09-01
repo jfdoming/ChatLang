@@ -48,11 +48,13 @@ ostream &operator<<(ostream &out, const LRNode &el) {
         for (auto *child : el.children) {
             out << *child;
         }
+        out << "--" << endl;
     } else {
         out << el.getNonterminal().str() << endl;
         for (auto *child : el.children) {
             out << *child;
         }
+        out << "--" << endl;
     }
     return out;
 }

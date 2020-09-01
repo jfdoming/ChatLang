@@ -8,14 +8,14 @@
 
 class Environment {
         std::stack<std::unordered_map<std::string, Value *>> frames;
-        std::stack<ASTNode *> frameIDs;
-        std::unordered_map<std::string, std::stack<std::pair<ASTNode *, Value *>>> effectFrames;
+        std::stack<const ASTNode *> frameIDs;
+        std::unordered_map<std::string, std::stack<std::pair<const ASTNode *, Value *>>> effectFrames;
     public:
         Environment(ASTNode *root);
         ~Environment();
 
-        int invoke(const std::string &name, Value *params, Value *&value);
-        int invoke(Value *fn, Value *params, Value *&value);
+        int invoke(const std::string &name, Value *args, Value *&value);
+        int invoke(Value *fn, Value *args, Value *&value);
         int get(const std::string &name, Value *&value) const;
         int set(const std::string &name, Value *value);
         int setEffect(const std::string &name, Value *value);

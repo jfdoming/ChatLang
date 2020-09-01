@@ -19,6 +19,7 @@ struct ASTNode {
         std::size_t getState() const;
         std::string getLexeme() const;
         TokenType getTerminal() const;
+        NonterminalType getNonterminal() const;
         bool isTerminal() const;
 
         virtual Value *interpret(Environment &env, short caller = 0) const;
