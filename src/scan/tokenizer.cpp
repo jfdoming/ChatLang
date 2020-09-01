@@ -20,6 +20,9 @@ unordered_map<string, function<string(char)>> TRANSITIONS = {
         if (c == '`') {
             return "symbol";
         }
+        if (c == '*') {
+            return "star1";
+        }
         if (c == '<') {
             return "lt";
         }
@@ -108,12 +111,18 @@ unordered_map<string, function<string(char)>> TRANSITIONS = {
             return "eqsignal";
         }
         return ERROR_STATE;
+    }},
+    {"star1", [](char c)->string {
+        if (c == '*') {
+            return "star2";
+        }
+        return ERROR_STATE;
     }}
 };
 
 unordered_map<char, string> SINGLE_CHAR_STATES = {
     {'+', ERROR_STATE},
-    {'*', ERROR_STATE},
+    {'-', ERROR_STATE},
     {'/', ERROR_STATE},
     {'%', ERROR_STATE},
     {'(', ERROR_STATE},
@@ -135,7 +144,8 @@ unordered_map<string, TokenType> ACCEPT_STATES = {
     {"string_end", TokenType::STRING},
     {"+", TokenType::PLUS},
     {"-", TokenType::MINUS},
-    {"*", TokenType::STAR},
+    {"star1", TokenType::STAR},
+    {"star2", TokenType::STARSTAR},
     {"/", TokenType::SLASH},
     {"%", TokenType::PERCENT},
     {"(", TokenType::LPAREN},
@@ -152,20 +162,20 @@ unordered_map<string, TokenType> ACCEPT_STATES = {
     {"comment", TokenType::COMMENT},
 };
 
-void accept(vector<Token> &tokens, const string &state, const string &lexeme) {
+void accept(vector<Token> &tokens, const string &state, const string &lexeme, size_t lineNumber, size_t position) {
     // For now, skip all whitespace and comments.
     if (
         ACCEPT_STATES[state] != TokenType::WHITESPACE
         && ACCEPT_STATES[state] != TokenType::COMMENT
     ) {
-        tokens.emplace_back(ACCEPT_STATES[state], lexeme);
+        tokens.emplace_back(ACCEPT_STATES[state], lexeme, lineNumber, position);
     }
 }
 
 // The tokenizer makes the assumption that tokens do not cross lines.
-int tokenize(const string &input, vector<Token> &tokens) {
+int tokenize(const string &input, size_t lineNumber, vector<Token> &tokens) {
     string state = "start";
-    size_t lexeme_start = 0;
+    size_t lexemeStart = 0;
     size_t i = 0;
     while (i < input.size()) {
         char c = input[i];
@@ -193,10 +203,10 @@ int tokenize(const string &input, vector<Token> &tokens) {
                 return i;
             }
 
-            string lexeme = input.substr(lexeme_start, i - lexeme_start);
-            accept(tokens, state, lexeme);
+            string lexeme = input.substr(lexemeStart, i - lexemeStart);
+            accept(tokens, state, lexeme, lineNumber, lexemeStart);
 
-            lexeme_start = i;
+            lexemeStart = i;
             state = "start";
         } else {
             ++i;
@@ -214,8 +224,8 @@ int tokenize(const string &input, vector<Token> &tokens) {
         return i;
     }
 
-    string lexeme = input.substr(lexeme_start, i - lexeme_start);
-    accept(tokens, state, lexeme);
+    string lexeme = input.substr(lexemeStart, i - lexemeStart);
+    accept(tokens, state, lexeme, lineNumber, lexemeStart);
 
     return -1;
 }
