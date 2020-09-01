@@ -39,13 +39,13 @@ $(EXE): $(OBJECTS)
 bin/main.o: main.cpp
 	$(info Compiling $<...)
 	@mkdir -p $(OBJDIR)
-	@$(CC) $(CFLAGS) -c $< -o $@ -I ./$(TOPDIR)
+	@$(CC) $(CFLAGS) -c $< -o $@ -I $(TOPDIR).
 
 $(OBJDIR)%$(OFILES): $(SRCDIR)%$(SFILES)
 	$(info Compiling $<...)
 	@mkdir -p $(OBJDIR)
 	@mkdir -p $(dir $(firstword $@))
-	@$(CC) $(CFLAGS) -c $< -o $@ -I ./$(TOPDIR)
+	@$(CC) $(CFLAGS) -c $< -o $@ -I $(TOPDIR).
 
 clean:
 	@rm -f $(OBJECTS) $(EXE)
