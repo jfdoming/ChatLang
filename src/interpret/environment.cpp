@@ -132,7 +132,6 @@ int Environment::set(const string &name, Value *value) {
     if (entry != currentFrame.end()) {
         delete entry->second;
     }
-
     value->markAutoDelete();
     currentFrame[name] = value;
     return 0;
@@ -140,7 +139,6 @@ int Environment::set(const string &name, Value *value) {
 
 int Environment::setEffect(const string &name, Value *value) {
     if (!frameIDs.size()) {
-        cerr << "foo" << endl;
         cerr << "Uh-oh! An internal error occurred while interpreting your program. This is probably a bug..." << endl;
         return -1;
     }

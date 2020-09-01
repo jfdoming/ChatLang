@@ -6,12 +6,11 @@ X(proc) \
 X(exprparopt) \
 X(exprpar) \
 X(statement) \
-X(start) \
-X(exprcat2) \
-X(expratom) \
-X(fn) \
-X(decl) \
 X(fncall) \
+X(fn) \
 X(exprcat3) \
 X(decllist) \
-X(exprcat1)
+X(exprcat1) \
+X(start) \
+X(exprcat2) \
+X(expratom)

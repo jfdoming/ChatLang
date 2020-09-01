@@ -45,7 +45,9 @@ Value *ASTNode::interpret(Environment &env, short) const {
                 if (!*next) {
                     return next;
                 }
-                delete result;
+                if (result && !result->isAutoDelete()) {
+                    delete result;
+                }
                 result = next;
             }
         }

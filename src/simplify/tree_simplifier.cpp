@@ -15,6 +15,7 @@
 #include "./nodes/binary_operator.hpp"
 #include "./nodes/function.hpp"
 #include "./nodes/function_call.hpp"
+#include "./nodes/decllist.hpp"
 
 using namespace std;
 
@@ -29,6 +30,42 @@ ASTNode *convertToAST(LRNode *cur);
 void populateChildren(LRNode *cur, ASTNode *ast) {
     for (auto &node: cur->getChildren()) {
         ast->addChild(convertToAST(node));
+    }
+}
+
+ASTNode *convertDecllistToAST(LRNode *cur, vector<ASTNode *> *tupleNodes = nullptr) {
+    auto &&children = cur->getChildren();
+    if (children.size() > 1) {
+        vector<ASTNode *> nodeList;
+        bool topLevel = false;
+        if (!tupleNodes) {
+            tupleNodes = &nodeList;
+            topLevel = true;
+        }
+        auto iter = children.begin();
+        convertDecllistToAST(*iter, tupleNodes);
+        ++iter;
+        for (; iter != children.end(); ++iter) {
+            tupleNodes->emplace_back(convertToAST(*iter));
+        }
+
+        if (!topLevel) {
+            return nullptr;
+        }
+        ASTNode *decllist = new DeclListNode;
+        for (auto &child : *tupleNodes) {
+            decllist->addChild(child);
+        }
+        return decllist;
+    } else if (tupleNodes) {
+        for (auto &child : children) {
+            tupleNodes->emplace_back(convertToAST(child));
+        }
+        return nullptr;
+    } else {
+        ASTNode *temp = new DeclListNode;
+        populateChildren(cur, temp);
+        return temp;
     }
 }
 
@@ -130,6 +167,9 @@ ASTNode *convertToAST(LRNode *cur) {
             case NonterminalType::fncall:
                 temp = new FunctionCallNode;
                 populateChildren(cur, temp);
+                break;
+            case NonterminalType::decllist:
+                temp = convertDecllistToAST(cur);
                 break;
             default:
                 temp = new ASTNode{cur->getNonterminal()};

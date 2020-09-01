@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <cinttypes>
@@ -50,7 +51,7 @@ class Value {
             return type != ValueType::ERROR;
         }
 
-        inline std::string str() const {
+        std::string str() const {
             if (type == ValueType::NUMBER) {
                 return std::to_string(num);
             }

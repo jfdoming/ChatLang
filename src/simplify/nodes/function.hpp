@@ -18,14 +18,18 @@ struct FunctionNode : public ASTNode {
             if (caller) {
                 return procChild->interpret(env);
             }
-            /*Value *args = nullptr;
+            Value *params = nullptr;
+            Value *result;
             if (children.size() == 6) {
-                args = children[1]->interpret(env);
-            }*/
-            return new Value{procChild, {}};
+                params = children[1]->interpret(env);
+                result = new Value{procChild, params->getParams()};
+                delete params;
+            } else {
+                result = new Value{procChild, {}};
+            }
+            return result;
         }
 
-        cerr << children.size() << endl;
         cerr << "Uh-oh! An internal error occurred while interpreting your program. This is probably a bug..." << endl;
         return new Value;
     }
