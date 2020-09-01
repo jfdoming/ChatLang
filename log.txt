@@ -1,2 +1,5 @@
 25/08/2020
 It's not super clear to me what you would put here normally... a cat? You usually have one though, so... :P
+
+31/08/2020
+Well... this is stressful. :'( The repl decided to stop working and I wasted half an hour... Well, on to the bug fixes, I guess.
