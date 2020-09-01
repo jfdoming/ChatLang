@@ -7,6 +7,11 @@
 #include "src/parse/lr_node.hpp"
 #include "src/parse/parser.hpp"
 
+#include "src/simplify/ast_node.hpp"
+#include "src/simplify/tree_simplifier.hpp"
+
+#include "src/interpret/interpreter.hpp"
+
 using namespace std;
 
 int main(int argc, char **argv) {
@@ -28,25 +33,39 @@ int main(int argc, char **argv) {
     bool is_file = argc == 2;
 
     string line;
-    size_t line_number = 1;
+    size_t lineNumber = 1;
     vector<Token> tokens;
+    vector<string> lines;
     while (input.next(line)) {
-        int failure_index = tokenize(line, tokens);
+        lines.emplace_back(line);
+        int failure_index = tokenize(line, lineNumber - 1, tokens);
         if (failure_index != -1) {
             string source = "<stdin>";
             if (is_file) {
                 source = argv[1];
             }
-            cerr << source << ":" << line_number << ":" << failure_index + 1 << ": unexpected character" << endl;
+            cerr << source << ":" << lineNumber << ":" << failure_index + 1 << ": unexpected character" << endl;
             cerr << line << endl;
             cerr << string(failure_index, ' ') << "^" << endl;
             if (is_file) {
                 return -1;
             }
         }
-        ++line_number;
+        tokens.emplace_back(TokenType::NEWLINE, "\n", lineNumber - 1, line.size());
+        ++lineNumber;
     }
 
     LRNode *tree;
-    parse(tokens, tree);
+    int result = parse(tokens, &lines, tree);
+    if (result) {
+        return result;
+    }
+
+    ASTNode *ast;
+    simplify(tree, ast);
+    delete tree;
+
+    result = interpret(ast);
+    delete ast;
+    return result;
 }
