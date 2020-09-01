@@ -5,31 +5,30 @@
 #include <string>
 #include <assert.h>
 
-#include "../scan/token_types.hpp"
+#include "../scan/tokenizer.hpp"
 #include "../parse/nt_types.hpp"
 
 using namespace std;
 
 struct LRNode {
         LRNode(const NonterminalType::Type &nonterminal);
-        LRNode(const TokenType &type, string lexeme);
+        LRNode(const Token &type);
         explicit LRNode(size_t state);
         ~LRNode();
 
         void addChild(LRNode *child);
         size_t getState() const;
         NonterminalType getNonterminal() const;
-        TokenType getTerminal() const;
-        string getLexeme() const;
+        Token getTerminal() const;
         bool isState() const;
         bool isTerminal() const;
+        vector<LRNode *> getChildren() const;
 
         friend ostream &operator<<(ostream &, const LRNode &);
     private:
         size_t state;
         NonterminalType nonterminal;
-        TokenType terminal;
-        string lexeme;
+        Token terminal;
         bool holdsState;
         bool holdsTerminal;
         vector<LRNode *> children;
