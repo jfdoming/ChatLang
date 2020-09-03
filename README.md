@@ -2,7 +2,7 @@
 Welcome to ChatLang! This is a language entirely created by [two undergraduate university students](#contributors) over the course of the `Repl.it` language Jam, for the purpose of exploring an idea called "algebraic effects" as well as some other quirky syntactic sugar (for example, see [this](https://overreacted.io/algebraic-effects-for-the-rest-of-us/) blog post) in a more C-like language. (It was also for the experience of building a language from scratch! 😅)
 
 ## Quickstart
-Just click the run button in [this Repl.it](https://repl.it/@ChatLang/ChatLang#README.md), or run `./lang <filename>` where `<filename>` is a name of a file to execute. For example, `./lang samples/main.lang` is the file set to run by default. You can also get a REPL by running `./lang` by itself, though currently you have to send the `EOF` character (`Ctrl-D` on Windows) to actually evaluate your code.
+Just click the run button in [this Repl.it](https://repl.it/@ChatLang/ChatLang#README.md), or run `./lang <filename>` where `<filename>` is a name of a file to execute. For example, `./lang samples/main.lang` is the file set to run by default. You can also get a REPL by running `./lang` by itself, though currently you have to send the `EOF` character (`Ctrl-D` on Unix-like systems) to actually evaluate your code.
 
 ## Challenges
 We decided to tackle this project without any libraries other than the C++ standard library! This meant building a custom tokenizer, grammar format, parser generator and interpreter. This was a huge adventure reliving past ~~trauma~~ experiences in our compilers course, and was an even bigger undertaking because this time, we were embarking on our language creation journey without any starter code.
