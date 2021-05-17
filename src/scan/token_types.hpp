@@ -1,10 +1,8 @@
 #pragma once
 
-#include <cstddef>
-#include <unordered_map>
-#include <string>
+#include "../enum.hpp"
 
-#define TOKEN_TYPES \
+#define TOKEN_TYPES(X) \
 X(B0F) \
 X(E0F) \
 X(SYMBOL) \
@@ -32,28 +30,5 @@ X(COMMA) \
 X(EQSIGNAL)
 
 class TokenType {
-    public:
-        #define X(type) type,
-        enum Type : size_t {
-            TOKEN_TYPES
-        };
-        #undef X
-
-        TokenType() : type{0} {}
-        TokenType(const Type &type) : type{type} {}
-        operator Type() {
-            return type;
-        }
-        std::string str() const {
-            return type_strings.at(type);
-        }
-
-    private:
-        Type type;
-
-        #define X(type) {type, #type},
-        std::unordered_map<Type, std::string> type_strings{
-            TOKEN_TYPES
-        };
-        #undef X
+    DEF_ENUM_CLASS(TokenType, TOKEN_TYPES);
 };

@@ -411,7 +411,7 @@ class Grammar : public IAutomatonResult {
 
         void printVocabulary(ostream &out) {
             out << "// This file was automatically generated; please do not modify it." << endl;
-            out << "\n#define NT_TYPES \\" << endl;
+            out << "\n#define NT_TYPES(X) \\" << endl;
             bool first = true;
             for (auto &word : nonterminals) {
                 if (first) {

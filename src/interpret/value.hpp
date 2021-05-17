@@ -6,10 +6,20 @@
 #include <cinttypes>
 #include <cmath>
 
+#include "../enum.hpp"
+
 class ASTNode;
 
-enum class ValueType {
-    NUMBER, STRING, SYMBOL, FUNCTION, TUPLE, ERROR
+#define VALUE_TYPES(X) \
+    X(NUMBER) \
+    X(STRING) \
+    X(SYMBOL) \
+    X(FUNCTION) \
+    X(TUPLE) \
+    X(ERROR)
+
+class ValueType {
+    DEF_ENUM_CLASS(ValueType, VALUE_TYPES);
 };
 
 class Value {

@@ -1,6 +1,6 @@
 // This file was automatically generated; please do not modify it.
 
-#define NT_TYPES \
+#define NT_TYPES(X) \
 X(start) \
 X(exprcat3) \
 X(proc) \
