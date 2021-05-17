@@ -6,6 +6,7 @@ OBJDIR   := $(TOPDIR)bin/
 OUTDIR   := $(TOPDIR)
 NAME     := $(shell cat $(TOPDIR).g++out 2> /dev/null || (read -p "Enter an executable name: " module && echo $$module | tee $(TOPDIR).g++out))
 EXE      := $(OUTDIR)$(NAME)
+FDEBUG   := $(shell cat $(TOPDIR).debug 2> /dev/null || echo 0)
 
 # Everything below this point is generic and could be put into a common
 # make include file to be included in other makefiles.
@@ -15,6 +16,24 @@ OFILES   := o
 DFILES   := d
 CC       := g++
 CFLAGS   := -std=c++17 -Wall -g -MMD
+LFLAGS   :=
+
+# Persist the DEBUG flag if necessary.
+ifdef DEBUG
+ifneq ($(FDEBUG),$(DEBUG))
+$(shell echo $(DEBUG) > $(TOPDIR).debug)
+endif
+else
+DEBUG := $(FDEBUG)
+endif
+
+ifeq ($(DEBUG),1)
+$(info (Running in debug mode...))
+CFLAGS += -fsanitize=address -DDEBUG
+LFLAGS += -fsanitize=address
+else
+$(info (Running in release mode...))
+endif
 
 SOURCES := $(wildcard $(SRCDIR)**/*.$(SFILES))
 OBJECTS := $(patsubst $(SRCDIR)%$(SFILES), $(OBJDIR)%$(OFILES), $(SOURCES)) $(OBJDIR)main.o
@@ -22,7 +41,7 @@ DEPENDENCIES := $(wildcard $(OBJDIR)**/*.$(DFILES))
 
 ALLFILES := $(SOURCES) main.cpp
 
-.PHONY: all clean exe deepclean noop
+.PHONY: all clean deepclean grammar help
 
 all: $(EXE)
 	@:
@@ -30,18 +49,34 @@ all: $(EXE)
 noop: ;
 	@:
 
+help: ;
+	@echo "*** ChatLang Makefile ***"
+	@echo
+	@echo "Targets:"
+	@echo " all         build the ChatLang executable"
+	@echo " clean       remove the ChatLang binary files"
+	@echo " deepclean   fully clean the working directory"
+	@echo " grammar     rebuild the parser on grammar change"
+	@echo " help        print this help message"
+	@echo
+	@echo "Variable flags:"
+	@echo " DEBUG       if 1, enable ASan and the DEBUG macro"
+
+.debug: ;
+	@echo $(DEBUG) > $(TOPDIR).debug
+
 $(EXE): $(OBJECTS)
 	$(info Linking...)
 	$(info $@)
 	@mkdir -p $(OBJDIR)
-	@$(CC) $^ -o $@
+	@$(CC) $(LFLAGS) $^ -o $@
 
-bin/main.o: main.cpp
+bin/main.o: main.cpp $(TOPDIR).debug
 	$(info Compiling $<...)
 	@mkdir -p $(OBJDIR)
 	@$(CC) $(CFLAGS) -c $< -o $@ -I $(TOPDIR).
 
-$(OBJDIR)%$(OFILES): $(SRCDIR)%$(SFILES)
+$(OBJDIR)%$(OFILES): $(SRCDIR)%$(SFILES) $(TOPDIR).debug
 	$(info Compiling $<...)
 	@mkdir -p $(OBJDIR)
 	@mkdir -p $(dir $(firstword $@))
@@ -49,9 +84,12 @@ $(OBJDIR)%$(OFILES): $(SRCDIR)%$(SFILES)
 
 clean:
 	@rm -f $(OBJECTS) $(EXE)
+	@echo Build is now clean.
 
 deepclean: clean
 	@rm -f $(TOPDIR).g++out
+	@rm -f $(TOPDIR).debug
+	@echo Workdir is now clean.
 
 pgen: tools/pgen/main.cpp
 	$(info Compiling...)
