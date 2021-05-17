@@ -3,3 +3,6 @@ lang
 lang.exe
 pgen
 pgen.exe
+
+# Local build-config-related files.
+.g++out
