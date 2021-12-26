@@ -44,12 +44,10 @@ class Value {
             }
         }
         Value(const Value &other) : data{other.data} {
-            ++data->refCount;
+            if (data) ++data->refCount;
         }
         Value &operator=(const Value &other) {
-            if (!--data->refCount) {
-                delete data;
-            }
+            if (data && !--data->refCount) delete data;
             data = other.data;
             ++data->refCount;
 
@@ -57,9 +55,7 @@ class Value {
         }
 
         ~Value() {
-            if (!--data->refCount) {
-                delete data;
-            }
+            if (data && !--data->refCount) delete data;
         }
 
         ValueType getType() {
@@ -74,6 +70,10 @@ class Value {
                 return data->strsym.size() == 0;
             }
             return false;
+        }
+
+        bool isEmpty() const {
+            return !data;
         }
 
         operator bool() const {

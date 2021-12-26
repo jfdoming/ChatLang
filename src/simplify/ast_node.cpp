@@ -41,10 +41,12 @@ Value ASTNode::interpret(Environment &env, short) const {
     for (auto *child : children) {
         if (child) {
             Value next = child->interpret(env);
-            if (!next) {
-                return {};
+            if (!next.isEmpty()) {
+                if (!next) {
+                    return next;
+                }
+                result = next;
             }
-            result = next;
         }
     }
 

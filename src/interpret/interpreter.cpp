@@ -23,11 +23,14 @@ int interpret(ASTNode *ast) {
     env.setEffect("println", println->interpret(env));
 
     Value result = ast->interpret(env);
-    if (result) {
-        cout << result.str() << endl;
-    } else {
-        cerr << "Returned an error" << endl;
-        return -1;
+    if (!result.isEmpty()) {
+        if (result) {
+            cout << result.str() << endl;
+        } else {
+            cerr << "Returned an error" << endl;
+            cerr << result.str() << endl;
+            return -1;
+        }
     }
 
     return 0;
