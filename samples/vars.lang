@@ -1,0 +1,6 @@
+a = 1
+run = [arg] { }
+run(a)
+
+run2 = [arg] { println(arg); }
+run2(a);

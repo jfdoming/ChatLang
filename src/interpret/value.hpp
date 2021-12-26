@@ -39,9 +39,7 @@ class Value {
         Value(const std::vector<Value> &values) : data{new Data{values}} {}
 
         explicit Value(Value *other) : data{other ? other->data : nullptr} {
-            if (data) {
-                ++data->refCount;
-            }
+            if (data) ++data->refCount;
         }
         Value(const Value &other) : data{other.data} {
             if (data) ++data->refCount;
@@ -49,8 +47,7 @@ class Value {
         Value &operator=(const Value &other) {
             if (data && !--data->refCount) delete data;
             data = other.data;
-            ++data->refCount;
-
+            if (data) ++data->refCount;
             return *this;
         }
 
