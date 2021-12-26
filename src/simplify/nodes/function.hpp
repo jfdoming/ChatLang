@@ -4,7 +4,7 @@
 
 struct FunctionNode : public ASTNode {
     FunctionNode() : ASTNode{NonterminalType::fn} {}
-    virtual Value *interpret(Environment &env, short caller = 0) const {
+    virtual Value interpret(Environment &env, short caller = 0) const {
         ASTNode *procChild = nullptr;
         if (children.size() == 3) {
             procChild = children[1];
@@ -18,19 +18,18 @@ struct FunctionNode : public ASTNode {
             if (caller) {
                 return procChild->interpret(env);
             }
-            Value *params = nullptr;
-            Value *result;
+            Value params{nullptr};
+            Value result{nullptr};
             if (children.size() == 6) {
                 params = children[1]->interpret(env);
-                result = new Value{procChild, params->getParams()};
-                delete params;
+                result = {procChild, params.getParams()};
             } else {
-                result = new Value{procChild, {}};
+                result = {procChild, {}};
             }
             return result;
         }
 
         cerr << "Uh-oh! An internal error occurred while interpreting your program. This is probably a bug..." << endl;
-        return new Value;
+        return {};
     }
 };

@@ -13,133 +13,152 @@ enum class ValueType {
 };
 
 class Value {
-        double num;
-        std::string strsym;
-        const ASTNode *fn;
-        std::vector<std::string> fnParams;
-        std::vector<Value *> values;
-        ValueType type;
-        bool autoDelete = false;
+        struct Data {
+            double num;
+            std::string strsym;
+            const ASTNode *fn;
+            std::vector<std::string> fnParams;
+            std::vector<Value> values;
+            ValueType type;
+
+            unsigned int refCount = 1;
+
+            Data() : type{ValueType::ERROR} {}
+            Data(double num) : num{num}, type{ValueType::NUMBER} {}
+            Data(std::string strsym, bool sym) : strsym{strsym}, type{sym ? ValueType::SYMBOL : ValueType::STRING} {}
+            Data(const ASTNode *fn, const std::vector<std::string> &params) : fn{fn}, fnParams{params}, type{ValueType::FUNCTION} {}
+            Data(const std::vector<Value> &values) : values{values}, type{ValueType::TUPLE} {}
+        };
+
+        Data *data;
     public:
-        Value() : type{ValueType::ERROR} {}
-        Value(double num) : num{num}, type{ValueType::NUMBER} {}
-        Value(std::string strsym, bool sym = false) : strsym{strsym}, type{sym ? ValueType::SYMBOL : ValueType::STRING} {}
-        Value(const ASTNode *fn, const std::vector<std::string> &params) : fn{fn}, fnParams{params}, type{ValueType::FUNCTION} {}
-        Value(const std::vector<Value *> &values) : values{values}, type{ValueType::TUPLE} {}
+        Value() : data{new Data} {}
+        Value(double num) : data{new Data{num}} {}
+        Value(std::string strsym, bool sym = false) : data{new Data{strsym, sym}} {}
+        Value(const ASTNode *fn, const std::vector<std::string> &params) : data{new Data{fn, params}} {}
+        Value(const std::vector<Value> &values) : data{new Data{values}} {}
+
+        explicit Value(Value *other) : data{other ? other->data : nullptr} {
+            if (data) {
+                ++data->refCount;
+            }
+        }
+        Value(const Value &other) : data{other.data} {
+            ++data->refCount;
+        }
+        Value &operator=(const Value &other) {
+            if (!--data->refCount) {
+                delete data;
+            }
+            data = other.data;
+            ++data->refCount;
+
+            return *this;
+        }
 
         ~Value() {
-            for (auto *value : values) {
-                if (!value->autoDelete) {
-                    delete value;
-                }
+            if (!--data->refCount) {
+                delete data;
             }
         }
 
         ValueType getType() {
-            return type;
-        }
-
-        void markAutoDelete() {
-            autoDelete = true;
-        }
-
-        bool isAutoDelete() const {
-            return autoDelete;
+            return data->type;
         }
 
         bool isFalsy() const {
-            if (type == ValueType::NUMBER) {
-                return num == 0;
+            if (data->type == ValueType::NUMBER) {
+                return data->num == 0;
             }
-            if (type == ValueType::STRING) {
-                return strsym.size() == 0;
+            if (data->type == ValueType::STRING) {
+                return data->strsym.size() == 0;
             }
             return false;
         }
 
         operator bool() const {
-            return type != ValueType::ERROR;
+            return data && data->type != ValueType::ERROR;
         }
 
         std::string str() const {
-            if (type == ValueType::NUMBER) {
-                return std::to_string(num);
+            if (data->type == ValueType::NUMBER) {
+                return std::to_string(data->num);
             }
-            if (type == ValueType::FUNCTION) {
-                return std::to_string(reinterpret_cast<uintptr_t>(fn));
+            if (data->type == ValueType::FUNCTION) {
+                return std::to_string(reinterpret_cast<uintptr_t>(data->fn));
             }
-            if (type == ValueType::TUPLE) {
+            if (data->type == ValueType::TUPLE) {
                 std::string output;
-                for (auto *value : values) {
-                    output += value->str() + ",";
+                for (auto value : data->values) {
+                    output += value.str() + ",";
                 }
                 return output;
             }
-            return strsym;
+            return data->strsym;
         }
 
-        Value *operator +(const Value &other) const {
+        Value operator +(const Value &other) const {
             if (
-                type == ValueType::SYMBOL
-                || other.type == ValueType::SYMBOL
-                || type == ValueType::FUNCTION
-                || other.type == ValueType::FUNCTION) {
-                return new Value;
+                data->type == ValueType::SYMBOL
+                || other.data->type == ValueType::SYMBOL
+                || data->type == ValueType::FUNCTION
+                || other.data->type == ValueType::FUNCTION) {
+                return {};
             }
-            if (type == ValueType::NUMBER && other.type == ValueType::NUMBER) {
-                return new Value{num + other.num};
+            if (data->type == ValueType::NUMBER && other.data->type == ValueType::NUMBER) {
+                return data->num + other.data->num;
             }
-            return new Value{str() + other.str()};
+            return str() + other.str();
         }
 
-        Value *operator -(const Value &other) const {
-            if (type == ValueType::NUMBER && other.type == ValueType::NUMBER) {
-                return new Value{num - other.num};
+        Value operator -(const Value &other) const {
+            if (data->type == ValueType::NUMBER && other.data->type == ValueType::NUMBER) {
+                return data->num - other.data->num;
             }
-            return new Value;
+            return {};
         }
 
-        Value *operator *(const Value &other) const {
-            if (type == ValueType::NUMBER && other.type == ValueType::NUMBER) {
-                return new Value{num * other.num};
+        Value operator *(const Value &other) const {
+            if (data->type == ValueType::NUMBER && other.data->type == ValueType::NUMBER) {
+                return data->num * other.data->num;
             }
             // TODO string-int multiplication
-            return new Value;
+            return {};
         }
 
-        Value *operator /(const Value &other) const {
-            if (type == ValueType::NUMBER && other.type == ValueType::NUMBER) {
-                return new Value{num / other.num};
+        Value operator /(const Value &other) const {
+            if (data->type == ValueType::NUMBER && other.data->type == ValueType::NUMBER) {
+                return data->num / other.data->num;
             }
             // is there string-int division?
-            return new Value;
+            return {};
         }
 
-        Value *operator %(const Value &other) const {
-            if (type == ValueType::NUMBER && other.type == ValueType::NUMBER) {
-                return new Value{fmod(num, other.num)};
+        Value operator %(const Value &other) const {
+            if (data->type == ValueType::NUMBER && other.data->type == ValueType::NUMBER) {
+                return fmod(data->num, other.data->num);
             }
             // is there string-int modulo?
-            return new Value;
+            return {};
         }
 
-        Value *operator ^(const Value &other) const {
-            if (type == ValueType::NUMBER && other.type == ValueType::NUMBER) {
-                return new Value{pow(num, other.num)};
+        Value operator ^(const Value &other) const {
+            if (data->type == ValueType::NUMBER && other.data->type == ValueType::NUMBER) {
+                return pow(data->num, other.data->num);
             }
             // is there string-int division?
-            return new Value;
+            return {};
         }
 
         const ASTNode *getFn() {
-            return fn;
+            return data->fn;
         }
 
         std::vector<std::string>& getParams() {
-            return fnParams;
+            return data->fnParams;
         }
 
-        std::vector<Value *>& getValues() {
-            return values;
+        std::vector<Value>& getValues() {
+            return data->values;
         }
 };

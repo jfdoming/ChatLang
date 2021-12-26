@@ -36,20 +36,15 @@ NonterminalType ASTNode::getNonterminal() const {
 bool ASTNode::isTerminal() const { return holdsTerminal; }
 
 // Default behaviour.
-Value *ASTNode::interpret(Environment &env, short) const {
-    Value *result = nullptr;
+Value ASTNode::interpret(Environment &env, short) const {
+    Value result{nullptr};
     for (auto *child : children) {
         if (child) {
-            Value *next = child->interpret(env);
-            if (next) {
-                if (!*next) {
-                    return next;
-                }
-                if (result && !result->isAutoDelete()) {
-                    delete result;
-                }
-                result = next;
+            Value next = child->interpret(env);
+            if (!next) {
+                return {};
             }
+            result = next;
         }
     }
 
