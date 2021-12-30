@@ -1,0 +1,2 @@
+run = [a] { println(a); }
+run(1, 2)

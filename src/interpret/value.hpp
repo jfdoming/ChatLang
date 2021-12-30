@@ -27,7 +27,11 @@ class Value {
             Data(double num) : num{num}, type{ValueType::NUMBER} {}
             Data(std::string strsym, bool sym) : strsym{strsym}, type{sym ? ValueType::SYMBOL : ValueType::STRING} {}
             Data(const ASTNode *fn, const std::vector<std::string> &params) : fn{fn}, fnParams{params}, type{ValueType::FUNCTION} {}
-            Data(const std::vector<Value> &values) : values{values}, type{ValueType::TUPLE} {}
+
+            // Note: ()-style rather than {}-style initialization is required
+            // in order to avoid implicit conversions.
+            Data(const std::vector<Value> &values)
+                : values(values), type{ValueType::TUPLE} {}
         };
 
         Data *data;
