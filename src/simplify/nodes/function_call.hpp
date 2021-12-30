@@ -13,6 +13,9 @@ struct FunctionCallNode : public ASTNode {
         if (children.size() == 4) {
             // Parameters provided.
             args = children[2]->interpret(env);
+            if (!args) {
+                return args;
+            }
         }
         
         int retval;
