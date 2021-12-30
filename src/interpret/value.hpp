@@ -90,8 +90,11 @@ class Value {
             }
             if (data->type == ValueType::TUPLE) {
                 std::string output;
-                for (auto value : data->values) {
-                    output += value.str() + ",";
+                for (auto &value : data->values) {
+                    if (&value != &data->values[0]) {
+                        output += ",";
+                    }
+                    output += value.str();
                 }
                 return output;
             }
