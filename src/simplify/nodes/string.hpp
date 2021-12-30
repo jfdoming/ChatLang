@@ -24,7 +24,7 @@ struct StringNode : public ASTNode {
         replaceString(this->lexeme, "\\\"", "\"");
     }
 
-    virtual Value *interpret(Environment &env, short caller = 0) const {
-        return new Value{lexeme};
+    virtual Value interpret(Environment &env, short caller = 0) const {
+        return lexeme;
     }
 };

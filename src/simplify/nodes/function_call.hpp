@@ -7,9 +7,9 @@
 struct FunctionCallNode : public ASTNode {
     FunctionCallNode() : ASTNode{NonterminalType::fncall} {}
 
-    virtual Value *interpret(Environment &env, short caller = 0) const {
-        Value *value = nullptr;
-        Value *args = nullptr;
+    virtual Value interpret(Environment &env, short caller = 0) const {
+        Value value{nullptr};
+        Value args{nullptr};
         if (children.size() == 4) {
             // Parameters provided.
             args = children[2]->interpret(env);
@@ -22,10 +22,9 @@ struct FunctionCallNode : public ASTNode {
             retval = env.invoke(children[0]->interpret(env), args, value);
         }
 
-        if (retval || !value || !*value) {
+        if (retval || !value) {
             // This is probably not a bug.
-            delete value;
-            return new Value;
+            return {};
         }
         return value;
     }

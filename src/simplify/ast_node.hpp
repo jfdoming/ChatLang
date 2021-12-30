@@ -22,7 +22,7 @@ struct ASTNode {
         NonterminalType getNonterminal() const;
         bool isTerminal() const;
 
-        virtual Value *interpret(Environment &env, short caller = 0) const;
+        virtual Value interpret(Environment &env, short caller = 0) const;
 
         friend std::ostream &operator<<(std::ostream &, const ASTNode &);
     protected:
