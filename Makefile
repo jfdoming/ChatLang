@@ -35,11 +35,11 @@ else
 $(info (Running in release mode...))
 endif
 
-SOURCES := $(wildcard $(SRCDIR)**/*.$(SFILES))
-OBJECTS := $(patsubst $(SRCDIR)%$(SFILES), $(OBJDIR)%$(OFILES), $(SOURCES)) $(OBJDIR)main.o
+SOURCES := $(wildcard $(SRCDIR)**/*.$(SFILES)) $(SRCDIR)main.cpp
+OBJECTS := $(patsubst $(SRCDIR)%$(SFILES), $(OBJDIR)%$(OFILES), $(SOURCES))
 DEPENDENCIES := $(wildcard $(OBJDIR)**/*.$(DFILES))
 
-ALLFILES := $(SOURCES) main.cpp
+ALLFILES := $(SOURCES)
 
 .PHONY: all clean deepclean grammar help
 
@@ -70,11 +70,6 @@ $(EXE): $(OBJECTS)
 	$(info $@)
 	@mkdir -p $(OBJDIR)
 	@$(CC) $(LFLAGS) $^ -o $@
-
-bin/main.o: main.cpp $(TOPDIR).debug
-	$(info Compiling $<...)
-	@mkdir -p $(OBJDIR)
-	@$(CC) $(CFLAGS) -c $< -o $@ -I $(TOPDIR).
 
 $(OBJDIR)%$(OFILES): $(SRCDIR)%$(SFILES) $(TOPDIR).debug
 	$(info Compiling $<...)

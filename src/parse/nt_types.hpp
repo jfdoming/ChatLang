@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../enum.hpp"
+#include "../utils/enum.hpp"
 #include "./nt_def.hpp"
 
 class NonterminalType {

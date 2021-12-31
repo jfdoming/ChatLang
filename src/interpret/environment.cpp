@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "src/simplify/ast_node.hpp"
+#include "../simplify/ast_node.hpp"
 
 using namespace std;
 

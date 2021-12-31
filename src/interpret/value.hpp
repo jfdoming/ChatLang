@@ -6,7 +6,7 @@
 #include <cinttypes>
 #include <cmath>
 
-#include "../enum.hpp"
+#include "../utils/enum.hpp"
 
 class ASTNode;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../enum.hpp"
+#include "../utils/enum.hpp"
 
 #define TOKEN_TYPES(X) \
 X(B0F) \

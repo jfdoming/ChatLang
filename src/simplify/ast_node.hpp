@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 
-#include "src/scan/token_types.hpp"
+#include "../scan/token_types.hpp"
 
-#include "src/parse/nt_types.hpp"
+#include "../parse/nt_types.hpp"
 
-#include "src/interpret/value.hpp"
-#include "src/interpret/environment.hpp"
+#include "../interpret/value.hpp"
+#include "../interpret/environment.hpp"
 
 struct ASTNode {
         ASTNode(const NonterminalType::Type &nonterminal);

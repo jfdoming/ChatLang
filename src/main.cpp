@@ -1,16 +1,16 @@
 #include <iostream>
 #include <vector>
 
-#include "src/scan/input.hpp"
-#include "src/scan/tokenizer.hpp"
+#include "./scan/input.hpp"
+#include "./scan/tokenizer.hpp"
 
-#include "src/parse/lr_node.hpp"
-#include "src/parse/parser.hpp"
+#include "./parse/lr_node.hpp"
+#include "./parse/parser.hpp"
 
-#include "src/simplify/ast_node.hpp"
-#include "src/simplify/tree_simplifier.hpp"
+#include "./simplify/ast_node.hpp"
+#include "./simplify/tree_simplifier.hpp"
 
-#include "src/interpret/interpreter.hpp"
+#include "./interpret/interpreter.hpp"
 
 using namespace std;
 
