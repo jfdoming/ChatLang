@@ -15,7 +15,7 @@ SFILES   := cpp
 OFILES   := o
 DFILES   := d
 CC       := g++
-CFLAGS   := -std=c++17 -Wall -g -MMD -Wall -Wextra -Werror
+CFLAGS   := -std=c++17 -MMD -Wall -Wextra -Werror
 LFLAGS   :=
 
 # Persist the DEBUG flag if necessary.
@@ -29,10 +29,11 @@ endif
 
 ifeq ($(DEBUG),1)
 $(info (Running in debug mode...))
-CFLAGS += -fsanitize=address -DDEBUG
+CFLAGS += -fsanitize=address -DDEBUG -g
 LFLAGS += -fsanitize=address
 else
 $(info (Running in release mode...))
+CFLAGS += -O2
 endif
 
 SOURCES := $(wildcard $(SRCDIR)**/*.$(SFILES)) $(SRCDIR)main.cpp
