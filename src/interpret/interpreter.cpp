@@ -17,10 +17,10 @@ int interpret(ASTNode *ast) {
     Environment env{ast};
 
     // Hard-coded library functions.
-    auto *print = new PrintNode;
-    auto *println = new PrintNode{true};
-    env.setEffect("print", print->interpret(env));
-    env.setEffect("println", println->interpret(env));
+    PrintNode print;
+    PrintNode println{true};
+    env.setEffect("print", print.interpret(env));
+    env.setEffect("println", println.interpret(env));
 
     Value result = ast->interpret(env);
     if (!result.isEmpty()) {
@@ -32,9 +32,6 @@ int interpret(ASTNode *ast) {
             return -1;
         }
     }
-
-    delete print;
-    delete println;
 
     return 0;
 }
