@@ -1,0 +1,9 @@
+rec <- [i] {
+    i <- i
+    (i) ({
+        println(i)
+        rec(i - 1)
+    }())
+}
+
+rec(20000)
