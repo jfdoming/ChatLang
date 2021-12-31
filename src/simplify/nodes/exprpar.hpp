@@ -7,7 +7,7 @@
 
 struct ExprParNode : public ASTNode {
     ExprParNode() : ASTNode{NonterminalType::exprpar} {}
-    virtual Value interpret(Environment &env, short caller = 0) const override {
+    virtual Value interpret(Environment &env, short = 0) const override {
         Value last{nullptr};
         Value cur{nullptr};
         for (size_t i = 1; i < children.size(); i += 3) {

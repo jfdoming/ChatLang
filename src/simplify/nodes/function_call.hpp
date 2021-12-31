@@ -7,7 +7,7 @@
 struct FunctionCallNode : public ASTNode {
     FunctionCallNode() : ASTNode{NonterminalType::fncall} {}
 
-    virtual Value interpret(Environment &env, short caller = 0) const {
+    virtual Value interpret(Environment &env, short = 0) const {
         Value value{nullptr};
         Value args{nullptr};
         if (children.size() == 4) {

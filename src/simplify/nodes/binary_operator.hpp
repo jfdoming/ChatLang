@@ -8,7 +8,7 @@
 struct BinaryOperatorNode : public ASTNode {
     BinaryOperatorNode() : ASTNode{NonterminalType::expr} {}
 
-    virtual Value interpret(Environment &env, short caller = 0) const {
+    virtual Value interpret(Environment &env, short = 0) const {
         if (children.size() != 3) {
             cerr << children.size() << "Uh-oh! An internal error occurred while interpreting your program. This is probably a bug..." << endl;
             return {};

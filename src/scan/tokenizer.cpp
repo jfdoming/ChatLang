@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cctype>
 #include <functional>
+#include <unordered_map>
 
 using namespace std;
 
@@ -82,7 +83,7 @@ unordered_map<string, function<string(char)>> TRANSITIONS = {
         }
         return "single_string";
     }},
-    {"escaped_single_string", [](char c)->string {
+    {"escaped_single_string", [](char)->string {
         return "single_string";
     }},
     {"double_string", [](char c)->string {
@@ -94,7 +95,7 @@ unordered_map<string, function<string(char)>> TRANSITIONS = {
         }
         return "double_string";
     }},
-    {"escaped_double_string", [](char c)->string {
+    {"escaped_double_string", [](char)->string {
         return "double_string";
     }},
     {"whitespace", [](char c)->string {
@@ -103,7 +104,7 @@ unordered_map<string, function<string(char)>> TRANSITIONS = {
         }
         return ERROR_STATE;
     }},
-    {"comment", [](char c)->string {
+    {"comment", [](char)->string {
         return "comment";
     }},
     {"lt", [](char c)->string {

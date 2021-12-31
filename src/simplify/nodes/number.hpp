@@ -12,7 +12,7 @@ struct NumberNode : public ASTNode {
         }*/
         NumberNode(const std::string &lexeme) : ASTNode{TokenType::NUM, lexeme}, value{stod(lexeme, nullptr)} {}
 
-        virtual Value interpret(Environment &env, short caller = 0) const {
+        virtual Value interpret(Environment &, short = 0) const {
             return value;
         }
     private:

@@ -15,7 +15,7 @@ SFILES   := cpp
 OFILES   := o
 DFILES   := d
 CC       := g++
-CFLAGS   := -std=c++17 -Wall -g -MMD
+CFLAGS   := -std=c++17 -Wall -g -MMD -Wall -Wextra -Werror
 LFLAGS   :=
 
 # Persist the DEBUG flag if necessary.

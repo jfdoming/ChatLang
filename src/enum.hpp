@@ -11,7 +11,7 @@
 enum Type : size_t { \
     GEN_ENUM_TYPES(TYPES) \
 }; \
-ClassName() : type{0} {} \
+ClassName() : type{static_cast<Type>(0)} {} \
 ClassName(const Type &type) : type{type} {} \
 const char *str() const { \
     return type_strings[type]; \
