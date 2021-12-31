@@ -33,5 +33,8 @@ int interpret(ASTNode *ast) {
         }
     }
 
+    delete print;
+    delete println;
+
     return 0;
 }
