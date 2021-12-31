@@ -31,7 +31,7 @@ struct ParseState {
         }
         void reduce(size_t count, NonterminalType::Type type) {
             peeked = true;
-            
+
             LRNode *newParent = new LRNode{type};
             for (size_t i = 0; i < count; ++i) {
                 if (nodeStack.size() < 2) {
@@ -83,10 +83,10 @@ struct ParseState {
                 tree = nullptr;
                 return -1;
             }
-            
+
             return 0;
         }
-    
+
     private:
         stack<LRNode *> nodeStack;
         NonterminalType::Type start;

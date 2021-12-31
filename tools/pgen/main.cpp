@@ -235,7 +235,7 @@ class Grammar : public IAutomatonResult {
 
             auxTablesComputed = true;
         }
-        
+
         unordered_set<Item, hash_item> closure(unordered_set<Item, hash_item> statesToClose) {
             while (true) {
                 bool changed = false;
@@ -259,7 +259,7 @@ class Grammar : public IAutomatonResult {
             }
             return statesToClose;
         }
-        
+
         unordered_set<Item, hash_item> gotoFromSymbol(const unordered_set<Item, hash_item> &itemsInCurrentState, const string &nextSym) {
             unordered_set<Item, hash_item> nextItems;
             for (auto &item : itemsInCurrentState) {
@@ -528,7 +528,7 @@ int parse(const std::vector<Token> &tokens, std::vector<std::string> *lines, LRN
         cout << "            }" << endl;
         cout << "        } else {" << endl;
         cout << "            switch (state.state) {" << endl;
-        
+
         // Nonterminals
         for (size_t state = 0; state < grammar.transitions.size(); ++state) {
             cout << "                case " << state << ":" << endl;
@@ -552,7 +552,7 @@ int parse(const std::vector<Token> &tokens, std::vector<std::string> *lines, LRN
             }
             cout << "                    break;" << endl;
         }
-        
+
         cout << R"(                default:
                     state.error();
             }

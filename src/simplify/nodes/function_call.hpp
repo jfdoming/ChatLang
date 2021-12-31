@@ -17,7 +17,7 @@ struct FunctionCallNode : public ASTNode {
                 return args;
             }
         }
-        
+
         int retval;
         if (children[0]->isTerminal()) {
             retval = env.invoke(children[0]->getLexeme(), args, value);

@@ -21,7 +21,7 @@ test3 = [] {
     test4 = {
         test()
     }
-    
+
     test <- {
         print("Hello, world!\n")
     }

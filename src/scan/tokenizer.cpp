@@ -218,7 +218,7 @@ int tokenize(const string &input, size_t lineNumber, vector<Token> &tokens) {
         // Empty string is valid, though not a token.
         return -1;
     }
-    
+
     // Potentially reached end of token, or failure.
     if (!ACCEPT_STATES.count(state)) {
         return i;
